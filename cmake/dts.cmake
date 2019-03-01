@@ -15,8 +15,8 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include/generated)
 set(GENERATED_DTS_BOARD_UNFIXED_H ${PROJECT_BINARY_DIR}/include/generated/generated_dts_board_unfixed.h)
 set(GENERATED_DTS_BOARD_CONF      ${PROJECT_BINARY_DIR}/include/generated/generated_dts_board.conf)
 
-set_ifndef(DTS_SOURCE ${BOARD_DIR}/${BOARD}.dts)
-set_ifndef(DTS_COMMON_OVERLAYS ${ZEPHYR_BASE}/dts/common/common.dts)
+set_ifndef(${IMAGE}DTS_SOURCE ${BOARD_DIR}/${BOARD}.dts)
+set_ifndef(${IMAGE}DTS_COMMON_OVERLAYS ${ZEPHYR_BASE}/dts/common/common.dts)
 
 # 'DTS_ROOT' is a list of directories where a directory tree with DT
 # files may be found. It always includes the application directory and
@@ -28,14 +28,14 @@ list(APPEND
   )
 
 set(dts_files
-  ${DTS_SOURCE}
+  ${${IMAGE}DTS_SOURCE}
   ${DTS_COMMON_OVERLAYS}
   ${shield_dts_files}
   )
 
 # TODO: What to do about non-posix platforms where NOT CONFIG_HAS_DTS (xtensa)?
 # Drop support for NOT CONFIG_HAS_DTS perhaps?
-if(EXISTS ${DTS_SOURCE})
+if(EXISTS ${${IMAGE}DTS_SOURCE})
   set(SUPPORTS_DTS 1)
 else()
   set(SUPPORTS_DTS 0)

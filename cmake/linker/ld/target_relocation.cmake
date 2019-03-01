@@ -13,12 +13,12 @@ macro(toolchain_ld_relocation)
     ${ZEPHYR_BASE}/scripts/gen_relocate_app.py
     $<$<BOOL:${CMAKE_VERBOSE_MAKEFILE}>:--verbose>
     -d ${APPLICATION_BINARY_DIR}
-    -i '$<TARGET_PROPERTY:code_data_relocation_target,COMPILE_DEFINITIONS>'
+    -i '$<TARGET_PROPERTY:${IMAGE}code_data_relocation_target,COMPILE_DEFINITIONS>'
     -o ${MEM_RELOCATAION_LD}
     -c ${MEM_RELOCATAION_CODE}
-    DEPENDS app kernel ${ZEPHYR_LIBS_PROPERTY}
+    DEPENDS ${KERNEL_LIBRARY} ${ZEPHYR_LIBS_PROPERTY}
     )
 
-  add_library(code_relocation_source_lib  STATIC ${MEM_RELOCATAION_CODE})
-  target_link_libraries(code_relocation_source_lib zephyr_interface)
+  add_library(${IMAGE}code_relocation_source_lib  STATIC ${MEM_RELOCATAION_CODE})
+  target_link_libraries(${IMAGE}code_relocation_source_lib zephyr_interface)
 endmacro()
