@@ -237,9 +237,7 @@ discussed here.
 - ``west list``: Lists project information from the manifest (URL, revision,
   path, etc.), along with other manifest-related information.
 
-- ``west manifest --freeze [-o outfile]``: Save a "frozen" representation of
-  the current manifest; all ``revision`` fields are converted to SHAs based on
-  the current ``manifest-rev`` branches.
+- ``west manifest``: Manipulates manifest files. See :ref:`west-manifest-cmd`.
 
 - ``west diff [PROJECT ...]``: Runs a multi-repo ``git diff``
   for the specified projects (default: all cloned projects).
