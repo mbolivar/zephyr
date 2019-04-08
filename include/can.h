@@ -326,7 +326,7 @@ static inline int can_write(struct device *dev, const u8_t *data, u8_t length,
  * If a message passes more than one filter the priority of the match
  * is hardware dependent.
  * A message queue can be attached to more than one filter.
- * The message queue must me initialized before, and the caller must have
+ * The message queue must be initialized before, and the caller must have
  * appropriate permissions on it.
  *
  * @param dev    Pointer to the device structure for the driver instance.
@@ -334,7 +334,7 @@ static inline int can_write(struct device *dev, const u8_t *data, u8_t length,
  * @param filter Pointer to a zcan_filter structure defining the id
  *               filtering.
  *
- * @retval filter id on success.
+ * @retval the filter id on success.
  * @retval CAN_NO_FREE_FILTER if there is no filter left.
  */
 __syscall int can_attach_msgq(struct device *dev, struct k_msgq *msg_q,
@@ -364,7 +364,7 @@ static inline int z_impl_can_attach_msgq(struct device *dev,
  * @param filter Pointer to a zcan_filter structure defining the id
  *               filtering.
  *
- * @retval filter id on success.
+ * @retval the filter id on success.
  * @retval CAN_NO_FREE_FILTER if there is no filter left.
  */
 static inline int can_attach_isr(struct device *dev,
