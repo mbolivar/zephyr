@@ -132,7 +132,8 @@ For example:
      self:
        # contents of self subsection
 
-The ``projects`` subsection is the only mandatory one.
+The ``projects`` subsection is the only mandatory one. It specifies the Git
+repositories that west should clone and maintain.
 
 The ``remotes`` subsection contains a sequence which specifies the base URLs
 where projects can be fetched from. Each sequence element has a name and a "URL
@@ -227,32 +228,45 @@ described next.
   project. This file is named :file:`west-commands.yml` by convention. See
   :ref:`west-extensions` for details.
 
-The ``defaults`` subsection can provide default values for project-related
-values. In particular, the default remote name and revision can be specified
-here. Another way to write the same manifest we have been describing so far
-using ``defaults`` is:
+The ``defaults`` subsection can provide default project ``remote`` and
+``revision`` values. Here are two equivalent example manifests, one without
+a ``defaults`` subsection, and another with one:
 
 .. code-block:: yaml
 
+   # Example manifest not using defaults:
    manifest:
-     defaults:
-       remote: remote1
-       revision: v1.3
-
      remotes:
        - name: remote1
          url-base: https://example.com/base1
-       - name: remote2
-         url-base: https://example.com/base2
 
      projects:
        - name: proj1
-         path: extra/project-1
-         revision: master
+         remote: remote1
+         revision: refs/tags/v5.1
+       - name: proj2
+         remote: remote1
+         revision: refs/tags/v5.1
+       - name: proj3
+         remote: remote1
+         revision: abcde413a111
+
+   # An equivalent manifest using defaults:
+   manifest:
+     remotes:
+       - name: remote1
+         url-base: https://example.com/base1
+     projects:
+       - name: proj1
        - name: proj2
        - name: proj3
-         remote: remote2
          revision: abcde413a111
+     defaults:
+       remote: remote1
+       revision: refs/tags/v5.1
+
+As you can see, ``defaults`` exists to help you save typing when you're
+repeating a project field often.
 
 Finally, the ``self`` subsection can be used to control the behavior of the
 manifest repository itself. Its value is a map with the following keys:
@@ -262,7 +276,6 @@ manifest repository itself. Its value is a map with the following keys:
   path component in the manifest repository URL will be used by default.  For
   example, if the URL is ``https://example.com/project-repo``, the manifest
   repository would be cloned to the directory :file:`project-repo`.
-
 - ``west-commands``: Optional. This is analogous to the same key in a
   project sequence element.
 
