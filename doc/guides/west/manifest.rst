@@ -140,7 +140,8 @@ The ``projects`` subsection is the only mandatory one. It specifies the Git
 repositories that west should clone and maintain.
 
 The ``remotes`` subsection contains a sequence which specifies the base URLs
-where projects can be fetched from. Each sequence element has a name and a "URL
+where projects can be fetched from. Its purpose is just to save typing; you
+don't need one in your manifest. Each sequence element has a name and a "URL
 base". These can be used to form the complete fetch URL for each project. For
 example:
 
@@ -149,16 +150,24 @@ example:
    manifest:
      # [...]
      remotes:
-       - name: remote1
-         url-base: https://git.example.com/base1
-       - name: remote2
-         url-base: https://git.example.com/base2
+       - name: my-remote
+         url-base: https://git.example.com
 
-Above, two remotes are given, with names ``remote1`` and ``remote2``. Their URL
-bases are respectively ``https://git.example.com/base1`` and
-``https://git.example.com/base2``. You can use SSH URL bases as well; for
-example, you might use ``git@example.com:base1`` if ``remote1`` supported Git
-over SSH as well. Anything acceptable to Git will work.
+Above, one remote is given, with name ``my-remote``. Its URL base is
+``https://git.example.com``. You can add multiple remotes like this:
+
+.. code-block:: yaml
+
+   manifest:
+     # [...]
+     remotes:
+       - name: my-remote
+         url-base: https://git.example.com
+       - name: my-github-fork
+         url-base: git@github.com:my-user
+
+Note that the ``my-git-hub-fork`` remote has a URL base which can be used to
+form SSH URLs. As long as the final URL is acceptable to Git, it will work.
 
 The ``projects`` subsection contains a sequence describing the project
 repositories in the west installation. Each project has a name and a remote or
@@ -281,8 +290,8 @@ manifest repository itself. Its value is a map with the following keys:
 - ``path``: Optional. The path to clone the manifest repository into, relative
   to the west installation's root directory. If not given, the basename of the
   path component in the manifest repository URL will be used by default.  For
-  example, if the URL is ``https://git.example.com/project-repo``, the manifest
-  repository would be cloned to the directory :file:`project-repo`.
+  example, if the URL is ``https://git.example.com/user/project-repo``, the
+  manifest repository would be cloned to the directory :file:`project-repo`.
 - ``west-commands``: Optional. This is analogous to the same key in a
   project sequence element.
 - ``import``: Optional. This is also analogous to the ``projects`` key, but
@@ -599,13 +608,17 @@ file :file:`99-ci.yml` in :file:`split-manifest/west.d`, with these contents:
        - name: an-application
          url: https://github.com/a-developer/application
          revision: another-pull-request-branch
+       - name: ci-tools
+         url: https://github.com/zephyrproject-rtos/ci-tools
 
 The CI scripts run ``west update`` after generating this file in
-:file:`split-manifest/west.d` after running ``west init`` with the
-``split-manifest`` repository URL as ``-m`` option. The project attributes in
+:file:`split-manifest/west.d`. The project attributes in
 :file:`99-ci.yml` override those set in any other files in
 :file:`split-manifest/west.d`, because :file:`99-ci.yml` comes after the other
 files in that directory when sorted lexicographically.
+
+The above example also shows Zephyr's ``ci-tools`` repository being added to
+the manifest.
 
 .. _west-manifest-import-map:
 
@@ -809,6 +822,9 @@ An equivalent manifest in a single file would be:
        - name: foo
          path: modules/hals/foo
          url: https://git.example.com/downstream/foo
+
+Note that the ``path`` attribute for the ``foo`` project was last set by the
+upstream west.yml; this determines its final value.
 
 .. _west-manifest-import-seq:
 
