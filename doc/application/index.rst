@@ -660,9 +660,9 @@ is optional. The binding directory contains bindings and the other
 directories contain files that can be included from DT sources.
 
 Once the directory structure is in place, you can use it by specifying
-its location through the ``DTS_ROOT`` CMake Cache variable::
+its location through the ``<IMAGE>DTS_ROOT`` CMake Cache variable::
 
-   cmake -DDTS_ROOT=<path to dts root>
+   cmake -D<IMAGE>DTS_ROOT=<path to dts root>
 
 You can also define the variable in the application
 :file:`CMakeLists.txt` file.
