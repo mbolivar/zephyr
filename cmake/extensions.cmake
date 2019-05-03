@@ -163,6 +163,9 @@ function(zephyr_add_executable name output_variable)
     message("Skipping building of ${name}")
   else()
     # Build normally
+    # Maintain a global list of images
+    set_property(GLOBAL APPEND PROPERTY IMAGES ${name}_)
+
     set_property(GLOBAL PROPERTY IMAGE ${name}_)
     set(${output_variable} 1 PARENT_SCOPE)
   endif()
