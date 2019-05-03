@@ -163,10 +163,26 @@ function(zephyr_add_executable name output_variable)
     message("Skipping building of ${name}")
   else()
     # Build normally
+
+    # Make sure we haven't already added this image, adding the same
+    # image twice is a mistake and is not supported.
+    get_property(
+      IMAGES
+      GLOBAL PROPERTY
+      IMAGES
+      )
+    list(FIND IMAGES ${name}_ out_var) # 'out_var' is '-1' if not found
+    if(NOT (${out_var} EQUAL -1))
+      message(FATAL_ERROR "zephyr_add_executable() was invoked twice with the parameter 'name='${name}''")
+    endif()
+
     # Maintain a global list of images
     set_property(GLOBAL APPEND PROPERTY IMAGES ${name}_)
 
+    # Set the active IMAGE
     set_property(GLOBAL PROPERTY IMAGE ${name}_)
+
+    # Signal that the image should be built by setting output_variable
     set(${output_variable} 1 PARENT_SCOPE)
   endif()
 
