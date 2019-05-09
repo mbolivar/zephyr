@@ -15,7 +15,7 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include/generated)
 set(GENERATED_DTS_BOARD_UNFIXED_H ${PROJECT_BINARY_DIR}/include/generated/generated_dts_board_unfixed.h)
 set(GENERATED_DTS_BOARD_CONF      ${PROJECT_BINARY_DIR}/include/generated/generated_dts_board.conf)
 
-set_ifndef(${IMAGE}DTS_SOURCE ${BOARD_DIR}/${BOARD}.dts)
+set_ifndef(${IMAGE}DTS_SOURCE ${${IMAGE}BOARD_DIR}/${${IMAGE}BOARD}.dts)
 set_ifndef(${IMAGE}DTS_COMMON_OVERLAYS ${ZEPHYR_BASE}/dts/common/common.dts)
 
 # '${IMAGE}DTS_ROOT' is a list of directories where a directory tree with DT
@@ -120,7 +120,7 @@ if(SUPPORTS_DTS)
     -D__DTS__
     -P
     -E ${ZEPHYR_BASE}/misc/empty_file.c
-    -o ${BOARD}.dts.pre.tmp
+    -o ${${IMAGE}BOARD}.dts.pre.tmp
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     RESULT_VARIABLE ret
     )
@@ -143,13 +143,13 @@ if(SUPPORTS_DTS)
   execute_process(
     COMMAND ${DTC}
     -O dts
-    -o ${BOARD}.dts_compiled
+    -o ${${IMAGE}BOARD}.dts_compiled
     -b 0
     -E unit_address_vs_reg
     ${DTC_NO_WARN_UNIT_ADDR}
     ${DTC_WARN_UNIT_ADDR_IF_ENABLED}
     ${EXTRA_DTC_FLAGS} # User settable
-    ${BOARD}.dts.pre.tmp
+    ${${IMAGE}BOARD}.dts.pre.tmp
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     RESULT_VARIABLE ret
     )
@@ -158,7 +158,7 @@ if(SUPPORTS_DTS)
   endif()
 
   set(CMD_EXTRACT_DTS_INCLUDES ${PYTHON_EXECUTABLE} ${ZEPHYR_BASE}/scripts/dts/extract_dts_includes.py
-    --dts ${BOARD}.dts_compiled
+    --dts ${${IMAGE}BOARD}.dts_compiled
     --yaml ${DTS_ROOT_BINDINGS}
     --keyvalue ${GENERATED_DTS_BOARD_CONF}
     --include ${GENERATED_DTS_BOARD_UNFIXED_H}

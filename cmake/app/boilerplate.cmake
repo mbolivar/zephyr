@@ -146,88 +146,93 @@ if(FIRST_BOILERPLATE_EXECUTION)
   # 'BOARD_ROOT' is a prioritized list of directories where boards may
   # be found. It always includes ${ZEPHYR_BASE} at the lowest priority.
   list(APPEND BOARD_ROOT ${ZEPHYR_BASE})
+endif(FIRST_BOILERPLATE_EXECUTION)
 
-  # The BOARD can be set by 3 sources. Through environment variables,
-  # through the cmake CLI, and through CMakeLists.txt.
-  #
-  # CLI has the highest precedence, then comes environment variables,
-  # and then finally CMakeLists.txt.
-  #
-  # A user can ignore all the precedence rules if he simply always uses
-  # the same source. E.g. always specifies -DBOARD= on the command line,
-  # always has an environment variable set, or always has a set(BOARD
-  # foo) line in his CMakeLists.txt and avoids mixing sources.
-  #
-  # The selected BOARD can be accessed through the variable 'BOARD'.
+# The ${IMAGE}BOARD can be set by 3 sources. Through environment
+# variables, through the cmake CLI, and through CMakeLists.txt.
+#
+# CLI has the highest precedence, then comes environment variables,
+# and then finally CMakeLists.txt.
+#
+# A user can ignore all the precedence rules if he simply always uses
+# the same source. E.g. always specifies -D${IMAGE}BOARD= on the command line,
+# always has an environment variable set, or always has a set(${IMAGE}BOARD
+# foo) line in his CMakeLists.txt and avoids mixing sources.
+#
+# The selected board can be accessed through the variable '${IMAGE}BOARD'.
 
-  # Read out the cached board value if present
-  get_property(cached_board_value CACHE BOARD PROPERTY VALUE)
+# Read out the cached board value if present
+get_property(cached_board_value CACHE ${IMAGE}BOARD PROPERTY VALUE)
 
-  # There are actually 4 sources, the three user input sources, and the
-  # previously used value (CACHED_BOARD). The previously used value has
-  # precedence, and if we detect that the user is trying to change the
-  # value we give him a warning about needing to clean the build
-  # directory to be able to change boards.
+# There are actually 4 sources, the three user input sources, and
+# the previously used value (${IMAGE}CACHED_BOARD). The previously
+# used value has precedence, and if we detect that the user is
+# trying to change the value we give him a warning about needing to
+# clean the build directory to be able to change boards.
 
-  set(board_cli_argument ${cached_board_value}) # Either new or old
-  if(board_cli_argument STREQUAL CACHED_BOARD)
-    # We already have a CACHED_BOARD so there is no new input on the CLI
-    unset(board_cli_argument)
-  endif()
+set(board_cli_argument ${cached_board_value}) # Either new or old
+if(board_cli_argument STREQUAL ${IMAGE}CACHED_BOARD)
+  # We already have a CACHED_BOARD so there is no new input on the CLI
+  unset(board_cli_argument)
+endif()
 
-  set(board_app_cmake_lists ${BOARD})
-  if(cached_board_value STREQUAL BOARD)
-    # The app build scripts did not set a default, The BOARD we are
-    # reading is the cached value from the CLI
-    unset(board_app_cmake_lists)
-  endif()
+set(board_app_cmake_lists ${${IMAGE}BOARD})
+if(cached_board_value STREQUAL ${IMAGE}BOARD)
+  # The app build scripts did not set a default, The ${IMAGE}BOARD
+  # we are reading is the cached value from the CLI
+  unset(board_app_cmake_lists)
+endif()
 
-  if(CACHED_BOARD)
-    # Warn the user if it looks like he is trying to change the board
-    # without cleaning first
-    if(board_cli_argument)
-      if(NOT (CACHED_BOARD STREQUAL board_cli_argument))
-        message(WARNING "The build directory must be cleaned pristinely when changing boards")
-        # TODO: Support changing boards without requiring a clean build
-      endif()
+if(${IMAGE}CACHED_BOARD)
+  # Warn the user if it looks like he is trying to change the board
+  # without cleaning first
+  if(board_cli_argument)
+    if(NOT (${IMAGE}CACHED_BOARD STREQUAL board_cli_argument))
+      message(WARNING "The build directory must be cleaned pristinely when changing boards")
+      # TODO: Support changing boards without requiring a clean build
     endif()
-
-    set(BOARD ${CACHED_BOARD})
-  elseif(board_cli_argument)
-    set(BOARD ${board_cli_argument})
-
-  elseif(DEFINED ENV{BOARD})
-    set(BOARD $ENV{BOARD})
-
-  elseif(board_app_cmake_lists)
-    set(BOARD ${board_app_cmake_lists})
-
-  else()
-    message(FATAL_ERROR "BOARD is not being defined on the CMake command-line in the environment or by the app.")
   endif()
 
-  assert(BOARD "BOARD not set")
-  message(STATUS "Selected BOARD ${BOARD}")
+  set(${IMAGE}BOARD ${${IMAGE}CACHED_BOARD})
+elseif(board_cli_argument)
+  set(${IMAGE}BOARD ${board_cli_argument})
 
-  # Store the selected board in the cache
-  set(CACHED_BOARD ${BOARD} CACHE STRING "Selected board")
+elseif(DEFINED ENV{${IMAGE}BOARD})
+  set(${IMAGE}BOARD $ENV{${IMAGE}BOARD})
 
-  if(NOT ARCH_ROOT)
-    set(ARCH_DIR ${ZEPHYR_BASE}/arch)
-  else()
-    set(ARCH_DIR ${ARCH_ROOT}/arch)
-  endif()
+elseif(board_app_cmake_lists)
+  set(${IMAGE}BOARD ${board_app_cmake_lists})
 
-  if(NOT SOC_ROOT)
-    set(SOC_DIR ${ZEPHYR_BASE}/soc)
-  else()
-    set(SOC_DIR ${SOC_ROOT}/soc)
-  endif()
+elseif(FIRST_BOILERPLATE_EXECUTION)
+  message(FATAL_ERROR "BOARD is not being defined on the CMake command-line in the environment or by the app.")
+else()
+  # Default to using the same board as the toplevel image
+  set(${IMAGE}BOARD ${BOARD})
+endif()
 
-  # Prevent CMake from testing the toolchain
-  set(CMAKE_C_COMPILER_FORCED   1)
-  set(CMAKE_CXX_COMPILER_FORCED 1)
+assert(${IMAGE}BOARD "BOARD not set")
+message(STATUS "Selected ${IMAGE}BOARD ${${IMAGE}BOARD}")
 
+# Store the selected board in the cache
+set(${IMAGE}CACHED_BOARD ${${IMAGE}BOARD} CACHE STRING "Selected board")
+
+if(NOT ARCH_ROOT)
+  set(ARCH_DIR ${ZEPHYR_BASE}/arch)
+else()
+  set(ARCH_DIR ${ARCH_ROOT}/arch)
+endif()
+
+if(NOT SOC_ROOT)
+  set(SOC_DIR ${ZEPHYR_BASE}/soc)
+else()
+  set(SOC_DIR ${SOC_ROOT}/soc)
+endif()
+
+# Prevent CMake from testing the toolchain
+set(CMAKE_C_COMPILER_FORCED   1)
+set(CMAKE_CXX_COMPILER_FORCED 1)
+
+if(FIRST_BOILERPLATE_EXECUTION)
   include(${ZEPHYR_BASE}/cmake/host-tools.cmake)
 
   string(REPLACE ";" " " BOARD_ROOT_SPACE_SEPARATED "${BOARD_ROOT}")
@@ -249,16 +254,6 @@ if(FIRST_BOILERPLATE_EXECUTION)
     find_appropriate_cache_directory(USER_CACHE_DIR)
   endif()
   message(STATUS "Cache files will be written to: ${USER_CACHE_DIR}")
-else() # NOT FIRST_BOILERPLATE_EXECUTION
-
-  # Have the child image select the same BOARD that was selected by
-  # the parent.
-  set(BOARD ${CACHED_BOARD})
-
-  unset(${IMAGE}DTC_OVERLAY_FILE)
-  if(EXISTS              ${APPLICATION_SOURCE_DIR}/${BOARD}.overlay)
-    set(${IMAGE}DTC_OVERLAY_FILE ${APPLICATION_SOURCE_DIR}/${BOARD}.overlay)
-  endif()
 endif(FIRST_BOILERPLATE_EXECUTION)
 
 # The SHIELD can be set by 3 sources. Through environment variables,
@@ -323,33 +318,26 @@ endif()
 # Store the selected shield in the cache
 set(${IMAGE}CACHED_SHIELD ${${IMAGE}SHIELD} CACHE STRING "Selected shield")
 
-# Use BOARD to search for a '_defconfig' file.
+# Use ${IMAGE}BOARD to search for a '_defconfig' file.
 # e.g. zephyr/boards/arm/96b_carbon_nrf51/96b_carbon_nrf51_defconfig.
 # When found, use that path to infer the ARCH we are building for.
 foreach(root ${BOARD_ROOT})
-  if (NOT BOARD_DIR)
-    # NB: find_path will return immediately if the output variable is
-    # already set this because it will set the output variable in the
-    # CACHE as well.
-    find_path(TMP_BOARD_DIR
-      NAMES ${BOARD}_defconfig
-      PATHS ${root}/boards/*/*
-      NO_DEFAULT_PATH
-      )
-    set(BOARD_DIR ${TMP_BOARD_DIR})
-    unset(TMP_BOARD_DIR CACHE)
-  endif()
+  # NB: find_path will return immediately if the output variable is
+  # already set this because it will set the output variable in the
+  # CACHE as well.
+  find_path(${IMAGE}BOARD_DIR
+    NAMES ${${IMAGE}BOARD}_defconfig
+    PATHS ${root}/boards/*/*
+    NO_DEFAULT_PATH
+    )
 
-  # Ensure that BOARD_DIR is not in CACHE so that different images can use
-  # different BOARD_DIR.
-
-  if(BOARD_DIR AND NOT (${root} STREQUAL ${ZEPHYR_BASE}))
+  if(${IMAGE}BOARD_DIR AND NOT (${root} STREQUAL ${ZEPHYR_BASE}))
     set(USING_OUT_OF_TREE_BOARD 1)
   endif()
 
   set(shield_dir ${root}/boards/shields)
-  if(DEFINED SHIELD)
-     string(REPLACE " " ";" SHIELD_AS_LIST "${SHIELD}")
+  if(DEFINED ${IMAGE}SHIELD)
+     string(REPLACE " " ";" SHIELD_AS_LIST "${${IMAGE}SHIELD}")
   endif()
   # Match the .overlay files in the shield directories to make sure we are
   # finding shields, e.g. x_nucleo_iks01a1/x_nucleo_iks01a1.overlay
@@ -362,14 +350,17 @@ foreach(root ${BOARD_ROOT})
   # x_nucleo_iks01a1/x_nucleo_iks01a1.overlay;x_nucleo_iks01a2/x_nucleo_iks01a2.overlay
   # we construct a list of shield names by extracting file name and
   # removing the extension.
+  unset(SHIELD_LIST)
   foreach(shield_path ${shields_refs_list})
     get_filename_component(shield ${shield_path} NAME_WE)
     list(APPEND SHIELD_LIST ${shield})
   endforeach()
 
-  if(DEFINED SHIELD)
+  unset(shield_dts_files)
+  unset(shield_dts_fixups)
+  if(DEFINED ${IMAGE}SHIELD)
     foreach(s ${SHIELD_AS_LIST})
-      list(REMOVE_ITEM SHIELD ${s})
+      list(REMOVE_ITEM ${IMAGE}SHIELD ${s})
       list(FIND SHIELD_LIST ${s} _idx)
       if (NOT _idx EQUAL -1)
         list(GET shields_refs_list ${_idx} s_path)
@@ -390,30 +381,27 @@ foreach(root ${BOARD_ROOT})
     endforeach()
   endif()
 
-  if(DEFINED SHIELD AND DEFINED NOT_FOUND_SHIELD_LIST)
+  if(DEFINED ${IMAGE}SHIELD AND DEFINED NOT_FOUND_SHIELD_LIST)
 	  foreach (s ${NOT_FOUND_SHIELD_LIST})
       message("No shield named '${s}' found")
 	  endforeach()
 	  print_usage()
-	  unset(CACHED_SHIELD CACHE)
+	  unset(${IMAGE}CACHED_SHIELD CACHE)
 	  message(FATAL_ERROR "Invalid usage")
   endif()
 endforeach()
 
-if(NOT BOARD_DIR)
-  message("No board named '${BOARD}' found")
+if(NOT ${IMAGE}BOARD_DIR)
+  message("No board named '${${IMAGE}BOARD}' found")
   print_usage()
-  unset(CACHED_BOARD CACHE)
+  unset(${IMAGE}CACHED_BOARD CACHE)
   message(FATAL_ERROR "Invalid usage")
 endif()
 
-unset(BOARD_ARCH_DIR CACHE)
-unset(BOARD_FAMILY   CACHE)
-unset(ARCH           CACHE)
+get_filename_component(BOARD_ARCH_DIR ${${IMAGE}BOARD_DIR} DIRECTORY)
+get_filename_component(BOARD_FAMILY   ${${IMAGE}BOARD_DIR} NAME)
 
-get_filename_component(BOARD_ARCH_DIR ${BOARD_DIR}     DIRECTORY)
-get_filename_component(BOARD_FAMILY   ${BOARD_DIR}      NAME)
-get_filename_component(ARCH           ${BOARD_ARCH_DIR} NAME)
+get_filename_component(ARCH           ${BOARD_ARCH_DIR}    NAME)
 
 # DTS should be close to kconfig because CONFIG_ variables from
 # kconfig and dts should be available at the same time.
@@ -443,11 +431,11 @@ elseif(DEFINED ENV{${IMAGE}CONF_FILE})
 elseif(COMMAND set_conf_file)
   message(WARNING "'set_conf_file' is deprecated, it will be removed in a future release.")
   set_conf_file()
-elseif(EXISTS   ${APPLICATION_SOURCE_DIR}/prj_${BOARD}.conf)
-  set(${IMAGE}CONF_FILE ${APPLICATION_SOURCE_DIR}/prj_${BOARD}.conf)
+elseif(EXISTS   ${APPLICATION_SOURCE_DIR}/prj_${${IMAGE}BOARD}.conf)
+  set(${IMAGE}CONF_FILE ${APPLICATION_SOURCE_DIR}/prj_${${IMAGE}BOARD}.conf)
 
-elseif(EXISTS   ${APPLICATION_SOURCE_DIR}/boards/${BOARD}.conf)
-  set(${IMAGE}CONF_FILE ${APPLICATION_SOURCE_DIR}/prj.conf ${APPLICATION_SOURCE_DIR}/boards/${BOARD}.conf)
+elseif(EXISTS   ${APPLICATION_SOURCE_DIR}/boards/${${IMAGE}BOARD}.conf)
+  set(${IMAGE}CONF_FILE ${APPLICATION_SOURCE_DIR}/prj.conf ${APPLICATION_SOURCE_DIR}/boards/${${IMAGE}BOARD}.conf)
 
 elseif(EXISTS   ${APPLICATION_SOURCE_DIR}/prj.conf)
   set(${IMAGE}CONF_FILE ${APPLICATION_SOURCE_DIR}/prj.conf)
@@ -459,8 +447,8 @@ if(${IMAGE}DTC_OVERLAY_FILE)
   # environment variable DTC_OVERLAY_FILE
 elseif(DEFINED ENV{${IMAGE}DTC_OVERLAY_FILE})
   set(${IMAGE}DTC_OVERLAY_FILE $ENV{${IMAGE}DTC_OVERLAY_FILE})
-elseif(EXISTS          ${APPLICATION_SOURCE_DIR}/${BOARD}.overlay)
-  set(${IMAGE}DTC_OVERLAY_FILE ${APPLICATION_SOURCE_DIR}/${BOARD}.overlay)
+elseif(EXISTS          ${APPLICATION_SOURCE_DIR}/${${IMAGE}BOARD}.overlay)
+  set(${IMAGE}DTC_OVERLAY_FILE ${APPLICATION_SOURCE_DIR}/${${IMAGE}BOARD}.overlay)
 endif()
 
 set(${IMAGE}CONF_FILE ${${IMAGE}CONF_FILE} CACHE STRING "If desired, you can build the application using\
@@ -505,7 +493,7 @@ set(KERNEL_EXE_NAME   ${KERNEL_NAME}.exe)
 set(KERNEL_STAT_NAME  ${KERNEL_NAME}.stat)
 set(KERNEL_STRIP_NAME ${KERNEL_NAME}.strip)
 
-include(${BOARD_DIR}/board.cmake OPTIONAL)
+include(${${IMAGE}BOARD_DIR}/board.cmake OPTIONAL)
 
 # If we are using a suitable ethernet driver inside qemu, then these options
 # must be set, otherwise a zephyr instance cannot receive any network packets.

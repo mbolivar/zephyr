@@ -11,7 +11,7 @@ zephyr_compile_options(
 # @Intent: Obtain compiler specific flags for no freestanding compilation
 toolchain_cc_no_freestanding_options()
 
-zephyr_include_directories(${BOARD_DIR})
+zephyr_include_directories(${${IMAGE}BOARD_DIR})
 
 zephyr_compile_options_ifdef(CONFIG_COVERAGE
   -fprofile-arcs

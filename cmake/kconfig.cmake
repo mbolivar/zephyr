@@ -14,7 +14,7 @@ else()
   set(KCONFIG_ROOT ${ZEPHYR_BASE}/Kconfig)
 endif()
 
-set(BOARD_DEFCONFIG ${BOARD_DIR}/${BOARD}_defconfig)
+set(BOARD_DEFCONFIG ${${IMAGE}BOARD_DIR}/${${IMAGE}BOARD}_defconfig)
 set(DOTCONFIG                  ${PROJECT_BINARY_DIR}/.config)
 set(PARSED_KCONFIG_SOURCES_TXT ${PROJECT_BINARY_DIR}/kconfig/sources.txt)
 
@@ -34,7 +34,7 @@ set(ENV{PYTHON_EXECUTABLE} ${PYTHON_EXECUTABLE})
 # Set environment variables so that Kconfig can prune Kconfig source
 # files for other architectures
 set(ENV{ARCH}      ${ARCH})
-set(ENV{BOARD_DIR} ${BOARD_DIR})
+set(ENV{BOARD_DIR} ${${IMAGE}BOARD_DIR})
 set(ENV{SOC_DIR}   ${SOC_DIR})
 set(ENV{CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR})
 set(ENV{ARCH_DIR}   ${ARCH_DIR})

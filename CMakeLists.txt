@@ -390,7 +390,7 @@ if(CONFIG_HAVE_CUSTOM_LINKER_SCRIPT)
   endif()
 else()
   # Try a board specific linker file
-  set(LINKER_SCRIPT ${BOARD_DIR}/linker.ld)
+  set(LINKER_SCRIPT ${${IMAGE}BOARD_DIR}/linker.ld)
   if(NOT EXISTS ${LINKER_SCRIPT})
     # If not available, try an SoC specific linker file
     set(LINKER_SCRIPT ${SOC_DIR}/${ARCH}/${SOC_PATH}/linker.ld)
@@ -413,7 +413,7 @@ configure_file(version.h.in ${PROJECT_BINARY_DIR}/include/generated/version.h)
 # Error-out when the deprecated naming convention is found (until
 # after 1.14.0 has been released)
 foreach(path
-    ${BOARD_DIR}/dts.fixup
+    ${${IMAGE}BOARD_DIR}/dts.fixup
     ${PROJECT_SOURCE_DIR}/soc/${ARCH}/${SOC_PATH}/dts.fixup
     ${APPLICATION_SOURCE_DIR}/dts.fixup
     )
@@ -426,7 +426,7 @@ foreach(path
   endif()
 endforeach()
 
-set_ifndef(${IMAGE}DTS_BOARD_FIXUP_FILE ${BOARD_DIR}/dts_fixup.h)
+set_ifndef(${IMAGE}DTS_BOARD_FIXUP_FILE ${${IMAGE}BOARD_DIR}/dts_fixup.h)
 set_ifndef(${IMAGE}DTS_SOC_FIXUP_FILE   ${SOC_DIR}/${ARCH}/${SOC_PATH}/dts_fixup.h)
 set(               DTS_APP_FIXUP_FILE   ${APPLICATION_SOURCE_DIR}/dts_fixup.h)
 
@@ -1359,7 +1359,7 @@ add_custom_command(
   ${post_build_commands}
   BYPRODUCTS
   ${post_build_byproducts}
-  COMMENT "Generating files from ${KERNEL_ELF_NAME} for board: ${BOARD}"
+  COMMENT "Generating files from ${KERNEL_ELF_NAME} for board: ${${IMAGE}BOARD}"
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   # NB: COMMENT only works for some CMake-Generators
   )
@@ -1444,7 +1444,7 @@ endif()
 
 if(CONFIG_BOARD_DEPRECATED)
   message(WARNING "
-      WARNING:  The board '${BOARD}' is deprecated and will be
+      WARNING:  The board '${${IMAGE}BOARD}' is deprecated and will be
       removed in version ${CONFIG_BOARD_DEPRECATED}"
   )
 endif()

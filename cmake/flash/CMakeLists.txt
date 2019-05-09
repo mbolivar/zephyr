@@ -27,7 +27,7 @@ if(RUNNERS)
   # board_runner_args().
   #
   # Always applicable:
-  set(ZEPHYR_RUNNER_CONFIG_BOARD_DIR "${BOARD_DIR}"
+  set(ZEPHYR_RUNNER_CONFIG_BOARD_DIR "${${IMAGE}BOARD_DIR}"
     CACHE STRING "Board definition directory" FORCE)
   set(ZEPHYR_RUNNER_CONFIG_KERNEL_ELF "${PROJECT_BINARY_DIR}/${KERNEL_ELF_NAME}"
     CACHE STRING "Path to kernel image in ELF format" FORCE)
@@ -98,18 +98,18 @@ endif(WEST)
 
 foreach(target flash debug debugserver attach)
   if(target STREQUAL flash)
-    set(comment "Flashing ${BOARD}")
+    set(comment "Flashing ${${IMAGE}BOARD}")
   elseif(target STREQUAL debug)
-    set(comment "Debugging ${BOARD}")
+    set(comment "Debugging ${${IMAGE}BOARD}")
   elseif(target STREQUAL debugserver)
-    set(comment "Debugging ${BOARD}")
+    set(comment "Debugging ${${IMAGE}BOARD}")
     if(EMU_PLATFORM)
       # cmake/qemu/CMakeLists.txt will add a debugserver target for
       # emulation platforms, so we don't add one here
       continue()
     endif()
   elseif(target STREQUAL attach)
-    set(comment "Debugging ${BOARD}")
+    set(comment "Debugging ${${IMAGE}BOARD}")
   endif()
 
   list(APPEND FLASH_DEPS ${logical_target_for_zephyr_elf})
