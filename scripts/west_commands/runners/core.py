@@ -13,8 +13,10 @@ as well as some other helpers for concrete runner classes.
 
 import abc
 import argparse
+import errno
 import os
 import platform
+import shutil
 import signal
 import subprocess
 
@@ -152,6 +154,19 @@ class BuildConfiguration:
             return int(value, 0)
         except ValueError:
             return value
+
+
+class MissingProgram(FileNotFoundError):
+    '''FileNotFoundError subclass for missing program dependencies.
+
+    No signficant changes from the parent FileNotFoundError; this is
+    useful for explicitly signaling that the file in question is a
+    program that some class requires to proceed.
+
+    The filename attribute contains the missing program.'''
+
+    def __init__(self, program):
+        super().__init__(errno.ENOENT, os.strerror(errno.ENOENT), program)
 
 
 class RunnerCaps:
@@ -411,6 +426,17 @@ class ZephyrBinaryRunner(abc.ABC):
         '''Concrete runner; run() delegates to this. Implement in subclasses.
 
         In case of an unsupported command, raise a ValueError.'''
+
+    def require(self, program):
+        '''Require that a program is installed before proceeding.
+
+        :param program: name of the program that is required.
+
+        This helper tries to find the program on the system PATH, and
+        raises MissingProgram if it is not found.
+        '''
+        if shutil.which(program) is None:
+            raise MissingProgram(program)
 
     def run_server_and_client(self, server, client):
         '''Run a server that ignores SIGINT, and a client that handles it.
