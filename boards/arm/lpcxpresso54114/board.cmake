@@ -7,8 +7,8 @@
 set_ifndef(LPCLINK_FW jlink)
 
 if(LPCLINK_FW STREQUAL jlink)
-  set_ifndef(BOARD_DEBUG_RUNNER jlink)
-  set_ifndef(BOARD_FLASH_RUNNER jlink)
+  board_set_debugger_ifndef(jlink)
+  board_set_flasher_ifndef(jlink)
 endif()
 
 if(CONFIG_BOARD_LPCXPRESSO54114_M4)
