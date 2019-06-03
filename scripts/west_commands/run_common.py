@@ -178,9 +178,9 @@ def _build_dir(args, die_if_none=True):
     elif is_zephyr_build(cwd):
         return cwd
     elif die_if_none:
-        log.die('--build-dir was not given, and neither {} '
-                'nor {} are zephyr build directories.'.
-                format(default, cwd))
+        log.die('--build-dir was not given, and neither . '
+                'nor ./{} are zephyr build directories.'.
+                format(DEFAULT_BUILD_DIR))
     else:
         return None
 
@@ -193,25 +193,52 @@ def dump_traceback():
     log.inf("An exception trace has been saved in", name)
 
 def do_run_common(command, args, runner_args, cached_runner_var):
-    if args.context:
-        _dump_context(command, args, runner_args, cached_runner_var)
-        return
-
     command_name = command.name
-    build_dir = _build_dir(args)
+    build_dir = _build_dir(args, die_if_none=not args.context)
 
-    if not args.skip_rebuild:
-        _banner('west {}: rebuilding'.format(command_name))
+    if build_dir and not args.skip_rebuild:
+        _banner('west {}: rebuilding {}'.format(command_name, build_dir))
         try:
             cmake.run_build(build_dir)
         except CalledProcessError:
-            if args.build_dir:
-                log.die('cannot run {}, build in {} failed'.format(
-                    command_name, args.build_dir))
-            else:
-                log.die('cannot run {}; no --build-dir given and build in '
-                        'current directory {} failed'.format(command_name,
-                                                             build_dir))
+            # We die if trying to rebuild, and warn if dumping context.
+            out = log.die if not args.context else log.wrn
+            msg = 'failed to rebuild'
+            if args.context:
+                msg += '; the following output may be incomplete or outdated'
+            out(msg)
+
+    # Try to figure out the CMake cache file based on the build
+    # directory or an explicit argument.
+    if build_dir is not None:
+        cache_file = path.abspath(
+            path.join(build_dir, args.cmake_cache or cmake.DEFAULT_CACHE))
+    elif args.cmake_cache:
+        cache_file = path.abspath(args.cmake_cache)
+    else:
+        cache_file = None
+
+    # Load the cache itself, if possible.
+    if cache_file and path.isfile(cache_file):
+        try:
+            cache = cmake.CMakeCache(cache_file)
+        except Exception:
+            log.die('cannot load cache {}.'.format(cache_file))
+    else:
+        if args.context:
+            cache_file = None
+            cache = None
+        elif cache_file:
+            log.die('CMake cache {} is not a file'.format(cache_file))
+        else:
+            log.die('no build directory (--build-dir) with CMake cache '
+                    '(--cmake-cache) was found')
+
+    # If we're just dumping context, do that and get out.
+    if args.context:
+        _dump_context(command, args, runner_args, cached_runner_var,
+                      build_dir, cache, cache_file)
+        return
 
     # Runner creation, phase 1.
     #
@@ -234,11 +261,12 @@ def do_run_common(command, args, runner_args, cached_runner_var):
 
     _banner('west {}: using runner {}'.format(command_name, runner))
     if runner not in available:
-        log.wrn('Runner {} is not configured for use with {}, '
+        log.wrn('runner {} is not configured for use with board {}; '
                 'this may not work'.format(runner, board))
+
     runner_cls = get_runner_cls(runner)
     if command_name not in runner_cls.capabilities().commands:
-        log.die('Runner {} does not support command {}'.format(
+        log.die('runner {} does not support command {}'.format(
             runner, command_name))
 
     # Runner creation, phase 2.
@@ -293,51 +321,12 @@ def do_run_common(command, args, runner_args, cached_runner_var):
 # Context-specific help
 #
 
-def _dump_context(command, args, runner_args, cached_runner_var):
-    build_dir = _build_dir(args, die_if_none=False)
-
-    # Try to figure out the CMake cache file based on the build
-    # directory or an explicit argument.
-    if build_dir is not None:
-        cache_file = path.abspath(
-            path.join(build_dir, args.cmake_cache or cmake.DEFAULT_CACHE))
-    elif args.cmake_cache:
-        cache_file = path.abspath(args.cmake_cache)
-    else:
-        cache_file = None
-
-    # Load the cache itself, if possible.
-    if cache_file is None:
-        log.wrn('No build directory (--build-dir) or CMake cache '
-                '(--cmake-cache) given or found; output will be limited')
-        cache = None
-    else:
-        try:
-            cache = cmake.CMakeCache(cache_file)
-        except Exception:
-            log.die('Cannot load cache {}.'.format(cache_file))
-
-    # If we have a build directory, try to ensure build artifacts are
-    # up to date. If that doesn't work, still try to print information
-    # on a best-effort basis.
-    if build_dir and not args.skip_rebuild:
-        try:
-            cmake.run_build(build_dir)
-        except CalledProcessError:
-            msg = 'Failed re-building application; cannot load context. '
-            if args.build_dir:
-                msg += 'Is {} the right --build-dir?'.format(args.build_dir)
-            else:
-                msg += textwrap.dedent('''\
-                Use --build-dir (-d) to specify a build directory; the one
-                used was {}.'''.format(build_dir))
-            log.die('\n'.join(textwrap.wrap(msg, initial_indent='',
-                                            subsequent_indent=INDENT,
-                                            break_on_hyphens=False)))
-
+def _dump_context(command, args, runner_args, cached_runner_var,
+                  build_dir, cache, cache_file):
     if cache is None:
-        _dump_no_context_info(command, args)
+        log.wrn('No cache is available; output is limited.')
         if not args.runner:
+            _dump_no_context_info(command, args)
             return
 
     if args.runner:
@@ -441,7 +430,7 @@ def _dump_one_runner_info(cache, args, build_dir, indent):
         _dump_runner_cached_opts(cache, runner, '', indent)
     _dump_runner_caps(cls, '')
     if not available:
-        log.wrn('Runner', runner, 'is not configured in this build.')
+        log.wrn('runner', runner, 'is not usable from this build directory.')
 
 
 def _dump_runner_caps(cls, base_indent):
@@ -467,7 +456,8 @@ def _dump_runner_opt_help(runner, cls):
         formatter.add_arguments(actions)
         formatter.end_section()
     # Get the runner help, with the "REMOVE ME" string gone
-    runner_help = '\n'.join(formatter.format_help().splitlines()[1:])
+    runner_help = ('\n'.join(formatter.format_help().splitlines()[1:]) or
+                   INDENT + '(none)')
 
     log.inf('{} options:'.format(runner), colorize=True)
     log.inf(runner_help)
