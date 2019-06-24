@@ -95,12 +95,12 @@ which is cloned into the installation. For example:
 .. code-block:: yaml
 
    west:
-     url: https://example.com/west
+     url: https://git.example.com/west
      revision: v0.5.6
 
 This specifies cloning the west repository from URL
-``https://example.com/west`` (any URL accepted by ``git clone`` will work), at
-revision ``v0.5.6``. The revision can be a Git branch, tag, or SHA.
+``https://git.example.com/west`` (any URL accepted by ``git clone`` will work),
+at revision ``v0.5.6``. The revision can be a Git branch, tag, or SHA.
 
 That is, the west section also contains a mapping, with permitted keys ``url``
 and ``revision``. These specify the fetch URL and Git revision for the west
@@ -145,16 +145,24 @@ example:
    manifest:
      # [...]
      remotes:
-       - name: remote1
-         url-base: https://example.com/base1
-       - name: remote2
-         url-base: https://example.com/base2
+       - name: my-remote
+         url-base: https://git.example.com
 
-Above, two remotes are given, with names ``remote1`` and ``remote2``. Their URL
-bases are respectively ``https://example.com/base1`` and
-``https://example.com/base2``. You can use SSH URL bases as well; for example,
-you might use ``git@example.com:base1`` if ``remote1`` supported Git over SSH
-as well. Anything acceptable to Git will work.
+Above, one remote is given, with name ``my-remote``. Its URL base is
+``https://git.example.com``. You can add multiple remotes like this:
+
+.. code-block:: yaml
+
+   manifest:
+     # [...]
+     remotes:
+       - name: my-remote
+         url-base: https://git.example.com
+       - name: my-github-fork
+         url-base: git@github.com:my-user
+
+Note that the ``my-git-hub-fork`` remote has a URL base which can be used to
+form SSH URLs. As long as the final URL is acceptable to Git, it will work.
 
 The ``projects`` subsection contains a sequence describing the project
 repositories in the west installation. Each project has a name and a remote or
@@ -171,7 +179,7 @@ date. Here is a simple example; we'll assume the ``remotes`` given above.
          remote: remote1
          path: extra/project-1
        - name: proj2
-         url: https://example.com/project-2
+         url: https://git.example.com/project-2
          revision: v1.3
        - name: proj3
          remote: remote2
@@ -180,18 +188,18 @@ date. Here is a simple example; we'll assume the ``remotes`` given above.
 This example has three projects:
 
 - ``proj1`` has remote ``remote1``, so its Git fetch URL is
-  ``https://example.com/base1/proj1`` (note that west adds the ``/`` between
+  ``https://git.example.com/base1/proj1`` (note that west adds the ``/`` between
   the URL base and project name). This project will be cloned at path
   ``extra/project-1`` relative to the west installation's root directory.
   Since the project has no ``revision``, the current tip of the ``master``
   branch will be checked out as a detached ``HEAD``.
 
-- ``proj2`` has an explicit fetch URL https://example.com/project-2. Since the
-  project has no ``path`` specified, it will be cloned at ``proj2`` (i.e. a
+- ``proj2`` has an explicit fetch URL https://git.example.com/project-2. Since
+  the project has no ``path`` specified, it will be cloned at ``proj2`` (i.e. a
   project's ``name`` is used as its default ``path``). The commit pointed to by
   the ``v1.3`` tag will be checked out.
 
-- ``proj3`` has fetch URL ``https://example.com/base2/proj3`` and will be
+- ``proj3`` has fetch URL ``https://git.example.com/base2/proj3`` and will be
   cloned at path ``proj3``. Commit ``abcde413a111`` will be checked out.
 
 Each element in the ``projects`` sequence can contain the following keys. Some
@@ -238,7 +246,7 @@ a ``defaults`` subsection, and another with one:
    manifest:
      remotes:
        - name: remote1
-         url-base: https://example.com/base1
+         url-base: https://git.example.com/base1
 
      projects:
        - name: proj1
@@ -255,7 +263,7 @@ a ``defaults`` subsection, and another with one:
    manifest:
      remotes:
        - name: remote1
-         url-base: https://example.com/base1
+         url-base: https://git.example.com/base1
      projects:
        - name: proj1
        - name: proj2
@@ -274,8 +282,8 @@ manifest repository itself. Its value is a map with the following keys:
 - ``path``: Optional. The path to clone the manifest repository into, relative
   to the west installation's root directory. If not given, the basename of the
   path component in the manifest repository URL will be used by default.  For
-  example, if the URL is ``https://example.com/project-repo``, the manifest
-  repository would be cloned to the directory :file:`project-repo`.
+  example, if the URL is ``https://git.example.com/user/project-repo``, the
+  manifest repository would be cloned to the directory :file:`project-repo`.
 - ``west-commands``: Optional. This is analogous to the same key in a
   project sequence element.
 
