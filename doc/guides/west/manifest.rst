@@ -81,6 +81,8 @@ In YAML terms, the manifest file contains a mapping, with two keys relevant to
 west at top level. These keys are the scalar strings ``west`` and
 ``manifest``. Their contents are described next.
 
+.. _west-manifests-west:
+
 West Section
 ============
 
@@ -112,6 +114,8 @@ https://github.com/zephyrproject-rtos/west, and the default revision is
 The file :file:`west-schema.yml` in the west source code repository contains a
 pykwalify schema for this section's contents.
 
+.. _west-manifests-manifest:
+
 Manifest Section
 ================
 
@@ -136,7 +140,8 @@ The ``projects`` subsection is the only mandatory one. It specifies the Git
 repositories that west should clone and maintain.
 
 The ``remotes`` subsection contains a sequence which specifies the base URLs
-where projects can be fetched from. Each sequence element has a name and a "URL
+where projects can be fetched from. Its purpose is just to save typing; you
+don't need one in your manifest. Each sequence element has a name and a "URL
 base". These can be used to form the complete fetch URL for each project. For
 example:
 
@@ -235,6 +240,9 @@ described next.
   the project which describes additional west commands provided by that
   project. This file is named :file:`west-commands.yml` by convention. See
   :ref:`west-extensions` for details.
+- ``import``: Optional. If ``true``, imports projects from manifest files in
+  the given repository into the current manifest. See
+  :ref:`west-multiple-manifests` for more details.
 
 The ``defaults`` subsection can provide default project ``remote`` and
 ``revision`` values. Here are two equivalent example manifests, one without
@@ -286,6 +294,9 @@ manifest repository itself. Its value is a map with the following keys:
   manifest repository would be cloned to the directory :file:`project-repo`.
 - ``west-commands``: Optional. This is analogous to the same key in a
   project sequence element.
+- ``import``: Optional. This is also analogous to the ``projects`` key, but
+  allows importing projects from other files in the manifest repository. See
+  :ref:`west-multiple-manifests`.
 
 As an example, let's consider this snippet from the zephyr repository's
 :file:`west.yml`:
@@ -307,6 +318,814 @@ repository root.
 
 The pykwalify schema :file:`manifest-schema.yml` in the west source code
 repository is used to validate the manifest section.
+
+.. _west-multiple-manifests:
+
+Multiple Manifests
+******************
+
+This section describes how the ``import`` key introduced above in
+:ref:`west-manifests-manifest` lets you use multiple manifest files in one
+:term:`west installation`.
+
+.. important::
+
+   For simplicity, ``import`` is currently not recursive: if you import a
+   manifest file which itself uses ``import``, the second level of manifest
+   files is ignored. This limitation will be revisited if it proves too
+   restrictive.
+
+West builds the final list of projects and their attributes by processing the
+imported files in a particular order. Manifest files later on in the order can
+override project attributes (like ``revision``, ``clone-depth``, etc.) from
+earlier manifest files.
+
+The ``import`` key's value can be:
+
+#. :ref:`A boolean <west-manifest-import-bool>`
+#. :ref:`A relative path <west-manifest-import-path>`
+#. :ref:`A mapping with additional configuration <west-manifest-import-map>`
+#. :ref:`A sequence of paths and mappings <west-manifest-import-seq>`
+
+We'll describe these options in order, with examples for different use cases.
+A more :ref:`formal description <west-manifest-formal>` of how this works
+follows.
+
+Here are links to the examples:
+
+- :ref:`west-manifest-ex1.1`
+- :ref:`west-manifest-ex1.2`
+- :ref:`west-manifest-ex2.1`
+- :ref:`west-manifest-ex2.2`
+- :ref:`west-manifest-ex2.3`
+- :ref:`west-manifest-ex3.1`
+- :ref:`west-manifest-ex3.2`
+- :ref:`west-manifest-ex3.3`
+- :ref:`west-manifest-ex4.1`
+- :ref:`west-manifest-ex4.2`
+
+.. _west-manifest-import-bool:
+
+Option 1: Boolean
+=================
+
+If ``import`` is missing, it defaults to the boolean ``false`` and has
+no effect. If you set it to ``true`` inside of a ``projects`` element, west
+will look for and import the :file:`west.yml` in that project's root directory
+into the current one [#true-manifest]_.
+
+This is only meaningful when ``import`` is in a project.  If you set
+``import`` to a boolean inside the ``self`` subsection, it's ignored.
+
+.. _west-manifest-ex1.1:
+
+Example 1.1: Simple Zephyr downstream
+-------------------------------------
+
+You have a source code repository you want to combine with the Zephyr
+repositories and maintain using west. You don't want to modify any of the
+upstream repositories. It would also be nice if west could keep those upstream
+repositories up to date for you as Zephyr changes. In other words, the west
+installation you want looks like this:
+
+.. code-block:: none
+
+   downstream
+   ├── .west                      # west directory
+   ├── zephyr                     # upstream zephyr repository
+   ├── net-tools                  # upstream net-tools repository
+   ├── [ ... other projects ...]  # other upstream repositories
+   └── my-repo                    # your downstream repository
+       ├── west.yml
+       └── [...other files..]
+
+You can do this with the following :file:`my-repo/west.yml`:
+
+.. code-block:: yaml
+
+   # my-repo/west.yml:
+   manifest:
+     remotes:
+       - name: zephyrproject-rtos
+         url-base: https://github.com/zephyrproject-rtos
+     projects:
+       - name: zephyr
+         remote: zephyrproject-rtos
+         revision: v1.14.0
+         import: true
+
+You can then create the installation on your computer like this, assuming
+``my-repo`` is hosted at ``https://git.example.com/my-repo``:
+
+.. code-block:: console
+
+   west init -m https://git.example.com/my-repo downstream
+   cd downstream
+   west update
+
+In detail:
+
+- ``west init`` creates a :file:`downstream` directory, clones
+  ``https://git.example.com/my-repo`` inside it, and sets up a :file:`.west`
+  next to the :file:`downstream/my-repo` clone.
+- the first time you run ``west update``, it parses :file:`my-repo/west.yml`;
+  since ``import`` is ``true`` for the ``zephyr`` project in that file, ``west
+  update`` also clones all the projects in :file:`zephyr/west.yml`, such as
+  ``net-tools``, at whatever revisions the zephyr v1.14.0 manifest file set
+  them to.
+
+.. _west-manifest-ex1.2:
+
+Example 1.2: Zephyr downstream with project forks
+-------------------------------------------------
+
+This is similar to :ref:`west-manifest-ex1.1`, except the :file:`net-tools`
+repository has a downstream fork, and we won't set a ``revision`` for the
+zephyr repository in order to always get the latest master.
+
+.. code-block:: yaml
+
+   # Example 2, my-repo/west.yml:
+   manifest:
+     defaults:
+       remote: my-remote
+     remotes:
+       - name: zephyrproject-rtos
+         url-base: https://github.com/zephyrproject-rtos
+       - name: my-remote
+         url-base: https://git.example.com
+     projects:
+       - name: net-tools
+         revision: my-net-tools-branch
+       - name: zephyr
+         remote: zephyrproject-rtos
+         import: true
+
+With this manifest file, ``net-tools`` is cloned from
+``https://git.example.com/net-tools`` instead of
+``https://github.com/zephyrproject-rtos/net-tools``, because of the
+``defaults`` subsection with ``remote: my-remote``. The branch
+``my-net-tools-branch`` is checked out instead of any revision set in
+:file:`zephyr/west.yml`.
+
+Since it's the main manifest file, west looks at the ``projects`` in
+:file:`my-repo/west.yml` *after* the same section in
+:file:`zephyr/west.yml`. Projects are identified by name, so your ``net-tools``
+project configuration overrides upstream's.
+
+Since ``zephyr`` has no revision set, the ``master`` branch will be used by
+default. Each time you run ``west update``, west fetches zephyr's latest master
+branch contents, and checks out the new revisions for each of its imported
+projects. (Your ``net-tools`` revision override always takes effect, though.)
+
+.. note::
+
+   In general, the top-level manifest file is processed after any files imported
+   by its ``projects`` subsection, so it can override any imported project
+   attributes in those files.
+
+.. _west-manifest-import-path:
+
+Option 2: Relative path
+=======================
+
+The ``import`` key can be a relative path to a manifest file or a directory
+containing manifest files. The path is relative to the root directory of the
+``projects`` or ``self`` repository the ``import`` key appears in.
+
+.. _west-manifest-ex2.1:
+
+Example 2.1: Zephyr downstream with explicit path
+-------------------------------------------------
+
+You can also give ``import`` the relative path to a file or directory inside a
+project or the manifest repository. All of the files it contains which end in
+``.yml`` or ``.yaml`` are treated as manifests and imported, ordered
+lexicographically (i.e. sorted by file name).
+
+This is an explicit way to write an equivalent manifest to the one in
+:ref:`west-manifest-ex1.1`.
+
+.. code-block:: yaml
+
+   manifest:
+     defaults:
+       remote: my-remote
+     remotes:
+       - name: zephyrproject-rtos
+         url-base: https://github.com/zephyrproject-rtos
+       - name: my-remote
+         url-base: https://git.example.com
+     projects:
+       - name: my-library
+       - name: my-app
+       - name: zephyr
+         remote: zephyrproject-rtos
+         import: west.yml
+
+The setting ``import: west.yml`` means to use the file :file:`west.yml`
+inside the ``zephyr`` project. While this example is contrived, this can be
+useful when the name of the manifest file you want is not :file:`west.yml`.
+
+.. _west-manifest-ex2.2:
+
+Example 2.2: Downstream with directory of manifest files
+--------------------------------------------------------
+
+Your downstream has a lot of repositories. So many, in fact, that you want to
+split them up into multiple manifest files, but keep track of them all in a
+single manifest repository, like this:
+
+.. code-block:: none
+
+   split-manifest/
+   ├── west.d
+   │   ├── 01-libraries.yml
+   │   ├── 02-vendor-hals.yml
+   │   └── 03-applications.yml
+   └── west.yml
+
+You want to add all the files in :file:`split-manifest/west.d` to the main
+manifest file, :file:`split-manifest/west.yml`. Here's how:
+
+.. code-block:: yaml
+
+   # split-manifest/west.yml:
+   manifest:
+     remotes:
+       - name: zephyrproject-rtos
+         url-base: https://github.com/zephyrproject-rtos
+     projects:
+       - name: zephyr
+         remote: zephyrproject-rtos
+         import: true
+     self:
+       import: west.d
+
+The above imports projects in the files :file:`01-libraries.yml`,
+:file:`02-vendor-hals.yml`, and :file:`03-applications.yml` (in that order)
+into the main manifest file, :file:`split-manifest/west.yml`.
+
+.. note::
+
+   The :file:`.yml` file names are prefixed with ordinal numbers to make sure
+   they are imported in the desired order, since west sorts and processes files
+   in imported directories lexicographically.
+
+The manifests in :file:`west.d` are imported *after* :file:`zephyr/west.yml`
+and :file:`split-manifest/west.yml` are processed, and they override any
+project attributes the files that come before. For example,
+:file:`01-libraries.yml` can fetch from your fork of a library in
+:file:`zephyr/west.yml` if you want to use a different version.
+
+.. note::
+
+   In general, an ``import`` in the ``self`` section is processed after the
+   manifest files named in ``projects`` and the main manifest file. This may
+   seem strange, but allows you to override attributes "after the fact", as
+   we'll see in the next example.
+
+.. _west-manifest-ex2.3:
+
+Example 2.3: Continuous Integration overrides
+---------------------------------------------
+
+Your continuous integration system needs to fetch and test multiple
+repositories in your west installation from a developer's forks instead of your
+mainline development trees, to see if the changes all work well together.
+
+Starting with :ref:`west-manifest-ex2.2`, the CI scripts add a
+file :file:`99-ci.yml` in :file:`split-manifest/west.d`, with these contents:
+
+.. code-block:: yaml
+
+   # split-manifest/west.d/99-ci.yml:
+   manifest:
+     projects:
+       - name: a-vendor-hal
+         url: https://github.com/a-developer/hal
+         revision: a-pull-request-branch
+       - name: an-application
+         url: https://github.com/a-developer/application
+         revision: another-pull-request-branch
+       - name: ci-tools
+         url: https://github.com/zephyrproject-rtos/ci-tools
+
+The CI scripts run ``west update`` after generating this file in
+:file:`split-manifest/west.d`. The project attributes in
+:file:`99-ci.yml` override those set in any other files in
+:file:`split-manifest/west.d`, because :file:`99-ci.yml` comes after the other
+files in that directory when sorted lexicographically.
+
+The above example also shows Zephyr's ``ci-tools`` repository being added to
+the manifest.
+
+.. _west-manifest-import-map:
+
+Option 3: Mapping
+=================
+
+The ``import`` key can also contain a mapping with the following keys:
+
+- ``file``: The name of the manifest file or directory. This defaults
+  to :file:`west.yml` if not present.
+- ``whitelist``: Optional. This can be a sequence of project names to include,
+  or a mapping with ``names`` and ``paths`` keys that contain sequences of
+  projects to include. Projects are added in the order specified, regardless of
+  the order they appear in the named file or files, with ``names`` coming
+  before ``paths`` (i.e. in alphabetic order by key). If you need a different
+  order, use a sequence of mappings.
+- ``blacklist``: Optional, projects to exclude. This takes the same
+  values as ``whitelist``. If both are given, ``blacklist`` is applied
+  before ``whitelist``.
+- ``list-syntax``: Optional, specifies how the elements in ``whitelist`` and
+  ``blacklist`` should be interpreted. The default value is ``literal``,
+  meaning to interpret each element as the actual name of a project. It can
+  also be ``re`` to treat them as regular expressions, and ``glob`` to treat
+  them as shell globs. The Python `re`_ module's regular expression syntax is
+  currently used.
+- ``rename``: Optional mapping of ``from: to`` keys, specifying that the
+  project named ``from`` should be renamed ``to`` in the final manifest.
+
+.. _west-manifest-ex3.1:
+
+Example 3.1: Downstream with project whitelist
+----------------------------------------------
+
+Here is a pair of manifest files, representing an upstream and a
+downstream. The downstream doesn't want to use all the upstream
+projects, however. We'll assume the upstream :file:`west.yml` is
+hosted at ``https://git.example.com/upstream/manifest``.
+
+.. code-block:: yaml
+
+   # upstream west.yml:
+   manifest:
+     projects:
+       - name: app
+         url: https://git.example.com/upstream/app
+       - name: library
+         url: https://git.example.com/upstream/library
+         revision: refs/heads/only-in-upstream
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: unnecessary-project
+         url: https://git.example.com/upstream/unnecessary-project
+
+   # downstream west.yml:
+   manifest:
+     projects:
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+         import:
+           whitelist:
+             - library2
+             - app
+           rename:
+             app: upstream-app
+       - name: library2
+         path: upstream-lib2
+       - name: app
+         url: https://git.example.com/downstream/app
+       - name: library
+         url: https://git.example.com/downstream/library
+
+An equivalent manifest in a single file would be:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: library2
+         path: upstream-lib2
+         url: https://git.example.com/upstream/library-2
+       - name: upstream-app
+         url: https://git.example.com/upstream/app
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+       - name: app
+         url: https://git.example.com/downstream/app
+       - name: library
+         url: https://git.example.com/downstream/library
+
+If a whitelist had not been used:
+
+- The ``library`` project in the final manifest would have had its ``revision``
+  set to ``refs/heads/only-in-upstream``.
+- ``unnecessary-project`` would have been imported.
+
+.. _west-manifest-ex3.2:
+
+Example 3.2: Another whitelist example
+--------------------------------------
+
+Here is an example showing how to whitelist upstream's libraries only,
+using ``glob`` syntax.
+
+.. code-block:: yaml
+
+   # upstream west.yml:
+   manifest:
+     projects:
+       - name: app
+         url: https://git.example.com/upstream/app
+       - name: library
+         url: https://git.example.com/upstream/library
+         revision: refs/heads/only-in-upstream
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: unnecessary-project
+         url: https://git.example.com/upstream/unnecessary-project
+
+   # downstream west.yml:
+   manifest:
+     projects:
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+         import:
+           whitelist: library*
+           list-syntax: glob
+       - name: app
+         url: https://git.example.com/downstream/app
+
+An equivalent manifest in a single file would be:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: library
+         url: https://git.example.com/upstream/library
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+       - name: app
+         url: https://git.example.com/downstream/app
+
+.. _west-manifest-ex3.3:
+
+Example 3.3: Downstream with blacklist by path
+----------------------------------------------
+
+Here's an example showing how to blacklist all vendor HALs from upstream by
+common path prefix in the installation, add your own version for the chip
+you're targeting, and keep everything else.
+
+.. code-block:: yaml
+
+   # upstream west.yml:
+   manifest:
+     defaults:
+       remote: upstream
+     remotes:
+       - name: upstream
+         url-base: https://git.example.com/upstream
+     projects:
+       - name: app
+       - name: library
+       - name: library2
+       - name: foo
+         path: modules/hals/foo
+       - name: bar
+         path: modules/hals/bar
+       - name: baz
+         path: modules/hals/baz
+
+   # downstream west.yml:
+   manifest:
+     projects:
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+         import:
+           blacklist:
+             paths:
+               - modules/hals/*
+           list-syntax: glob
+       - name: foo
+         url: https://git.example.com/downstream/foo
+
+An equivalent manifest in a single file would be:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: app
+         url: https://git.example.com/upstream/app
+       - name: library
+         url: https://git.example.com/upstream/library
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+       - name: foo
+         path: modules/hals/foo
+         url: https://git.example.com/downstream/foo
+
+Note that the ``path`` attribute for the ``foo`` project was last set by the
+upstream west.yml; this determines its final value.
+
+.. _west-manifest-import-seq:
+
+Option 4: Sequence of Files, Directories, and Mappings
+======================================================
+
+The ``import`` key can also contain a sequence of files, directories,
+and mappings.
+
+.. _west-manifest-ex4.1:
+
+Example 4.1: Downstream with sequence of manifest files
+-------------------------------------------------------
+
+This example manifest is equivalent to the manifest in
+:ref:`west-manifest-ex2.2`, with a sequence of explicitly named files.
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: zephyr
+         url: https://github.com/zephyrproject-rtos/zephyr
+         import: west.yml
+     self:
+       import:
+         - west.d/01-libraries.yml
+         - west.d/02-vendor-hals.yml
+         - west.d/03-applications.yml
+
+.. _west-manifest-ex4.2:
+
+Example 4.2: Import order illustration
+--------------------------------------
+
+A contrived example combining several possibilities to illustrate the order
+that manifest files are processed:
+
+.. code-block:: yaml
+
+   # kitchen-sink/west.yml
+   manifest:
+     remotes:
+       - name: my-remote
+         url-base: https://git.example.com
+     projects:
+       - name: my-library
+       - name: my-app
+       - name: zephyr
+         url: https://github.com/zephyrproject-rtos/zephyr
+         import: true
+       - name: another-upstream-manifest
+         url: https://git.example.com/another-upstream-manifest
+         import: west.d
+     self:
+       import:
+         - west.d/01-libraries.yml
+         - west.d/02-vendor-hals.yml
+         - west.d/03-applications.yml
+     defaults:
+       remote: my-remote
+
+In the above example, the manifest files are processed in the following order:
+
+#. :file:`zephyr/west.yml` is first, since it's the first file named in a
+   project's ``import`` key
+#. the files in :file:`another-upstream-manifest/west.d` are next (sorted by
+   file name), since that's the next project's ``import``
+#. :file:`kitchen-sink/west.yml` follows (with projects ``my-library`` etc.);
+   the main manifest comes after imported files in ``projects``
+#. files in :file:`kitchen-sink/west.d` follow, ordered by name, as the
+   ``import`` key in a ``self`` subsection is always processed last to
+   allow for final overrides
+
+.. _west-manifest-formal:
+
+Manifest Import Details
+=======================
+
+This section describes how west imports a manifest file a bit more formally.
+
+In a manifest file, the ``self`` section and any element in the ``projects``
+section can have an ``import`` key, whose value can be a boolean, path,
+map, or sequence of these as described above.
+
+West sorts and processes files named by these ``import`` keys in this order:
+
+#. The ``import`` keys in ``projects`` are considered first. They are processed
+   in the order they appear in the ``projects`` sequence.
+#. The main :file:`west.yml` manifest file and its projects are processed next.
+#. The file or files named by the ``import`` key in the ``self`` subsection of
+   the main manifest file are processed last.
+
+An individual ``import`` value may name multiple files. This happens when the
+value is a sequence, a relative path to a directory, or a mapping with a
+relative path to a directory in its ``file`` key. Files in directories are
+processed in lexicographic order. Sequence elements are also processed in
+order.  Since the order of files in the final list is well defined, project
+attribute overrides are as well.
+
+.. note::
+
+   This only defines the order that imported *manifest files* are handled in.
+   It does not define the order projects appear in the output of commands like
+   ``west list``.
+
+Once the list of all the manifest files is ready, west repeatedly imports each
+one into the next, starting from an "empty" manifest which contains no
+projects.
+
+Here's some Python-like pseudocode explaining the idea:
+
+.. code-block:: python
+
+   def combine_projects(p1, p2):
+       '''Combine projects p1 and p2; p1's settings "win".
+
+       See below for an explanation of the "|" notation and N, U, R,
+       etc. attributes.'''
+       name = p1.N return (name, (p2.U | p1.U), (p2.R |
+       p1.R), (p2.P | p1.P), (p2.CD | p1.CD), (p2.WC | p1.WC))
+
+   def import_manifest(m1, m2):
+       '''Import manifest m2 into m1 and return the resulting projects.
+
+       Project attributes set in m1 override values set in m2.'''
+       result = m1.projects.copy()
+       for m2p in m2.projects:
+           name = m2p.N
+           if name in result.names:
+               m1p = result[name]
+               result[name] = combine_projects(m1p, m2p)
+           else:
+               result.add(m2p)
+       return result
+
+   def get_imports_in_order(manifest):
+       '''Get a list of manifest files to process.
+
+       The returned files are ordered by increasing precedence.'''
+       result = []
+       result.extend(p.imports for p in manifest.projects)
+       result.append(manifest)
+       result.extend(manifest.self.imports)
+       return result
+
+   def process_imports(manifest):
+       current_manifest = empty_manifest
+       for f in get_import_files_in_order(manifest):
+           current_manifest = import_manifest(f, current_manifest)
+       return current_manifest
+
+For the purposes of this section, we'll treat a manifest as a sequence of
+projects, where each project is a simple tuple:
+
+.. code-block:: none
+
+   project = (name, url, revision, path, clone-depth, west-commands)
+
+We'll write ``P = (N, U, R, P, CD, WC)`` as a shorter way to say the same
+thing. That is, we won't bother remembering anything about the project's
+``remote`` key in the manifest file, if there is one. That's only used to form
+the project's URL, which is what we really care about. We'll also apply any
+``defaults`` values in the file when forming each each project tuple.
+
+Some project information (``R``, ``P``, ``CD``, and ``WC`` in this notation) is
+optional in manifest files. We'll use an underscore (``_``) to denote a missing
+key in the tuple notation (assuming it doesn't have a value in
+``defaults``). For example, we'll represent this manifest:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: my-name
+         url: https://git.example.com/repo-url
+         path: modules/my-name
+
+As if it contained just this tuple in the projects list:
+
+.. code-block:: none
+
+   (my-name, https://git.example.com/repo-url, _, modules/my-name, _, _)
+
+If an attribute is missing but has a default, we'll apply it to the
+corresponding tuple. For example, we'll represent this manifest:
+
+.. code-block:: yaml
+
+   manifest:
+     defaults:
+       revision: master
+     projects:
+       - name: my-name
+         url: https://git.example.com/repo-url
+         path: modules/my-name
+
+As if it contained this tuple:
+
+.. code-block:: none
+
+   (my-name, https://git.example.com/repo-url, master, modules/my-name, _, _)
+
+When manifest ``M1`` imports another manifest ``M2``, two projects with the
+same name in both are combined into a single project. Any project attributes in
+``M2`` are overridden if set in ``M1``.
+
+We'll use a pipe (``|``) as a binary operator that defines how individual
+project attributes are combined. For example, ``R1 | R2`` is the revision when
+two project tuples with revisions ``R1`` and ``R2`` are combined. A missing
+key's value, ``_``, is an identity element with respect to ``|``, and ``R1 |
+R2`` is ``R2`` for non-identity values ``R1`` and ``R2``. That is, for
+non-identity elements ``R``, ``R1``, and ``R2``:
+
+.. code-block:: none
+
+   R  | _  == R
+   _  | R  == R
+   _  | _  == _
+   R1 | R2 == R2
+
+The same operator can be used to combine ``U``, ``P``, ``CD``, and ``WC``
+values.
+
+Note that the ``|`` operator is associative for any attribute ``A``: ``(A1 |
+A2) | A3 == A1 | (A2 | A3)``.
+
+Let's put these pieces together to describe how west handles a project that
+appears in both ``M1`` and ``M2``. If ``M1`` contains this project tuple:
+
+.. code-block:: none
+
+   (N, U1, R1, P1, CD1, WC1)
+
+And ``M2`` contains this one:
+
+.. code-block:: none
+
+   (N, U2, R2, P2, CD2, WC2)
+
+Then the combined project is:
+
+.. code-block:: none
+
+   (N, U1 | U2, R1 | R2, P1 | P2, CD1 | CD2, WC1 | WC2)
+
+(A ``west`` subsection in a manifest, if present, can be treated as if it
+defines a project tuple ``(west, U, R, .west/west, _, _)``. The same type of
+rule applies if both manifest files have a ``west`` section: the last ``url``
+or ``revision`` in an input file is the value used in the output file.)
+
+The indexes of projects in the combined manifest are not specified. For example,
+if ``M1`` looks like this:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: p1
+         url: https://git.example.com/p1
+         revision: p1-tag
+         path: modules/p1
+       - name: p2
+         url: https://git.example.com/p2
+         revision: p2-tag
+
+And ``M2`` looks like this:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: p1
+         url: git@example.com:p1
+       - name: p3
+         url: git@example.com:p3
+         revision: topic-branch
+
+Then a representation of the final manifest where ``M1`` imports ``M2`` could
+be:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: p3
+         url: git@example.com:p3
+         revision: topic-branch
+       - name: p2
+         url: https://git.example.com/p2
+         revision: c001ca7
+       - name: p1
+         url: git@example.com:p1
+         revision: p1-tag
+         path: modules/p1
+
+The above guarantees:
+
+#. All projects in any imported manifest file are present in the output.
+#. If a project appears in multiple imported manifest files, its attributes are
+   given by the last manifest in the import order that sets them.
 
 .. _west-manifest-cmd:
 
@@ -333,3 +1152,34 @@ You can use ``--freeze`` to produce a frozen manifest that's equivalent to your
 current manifest file. The ``-o`` option specifies an output file; if not
 given, standard output is used.
 
+If :ref:`multiple manifests <west-multiple-manifests>` are used, the
+``--freeze`` action combines them into a single file.
+
+.. _west-manifest-cmd-resolve:
+
+Printing Manifest Contents
+==========================
+
+The ``--resolve`` action outputs a single manifest file for the current
+installation:
+
+.. code-block:: none
+
+   west manifest --resolve [-o outfile]
+
+The output is not frozen: ``revision`` fields are the same as they appeared
+in the manifest file or files. The output does not include ``defaults`` or
+``remotes`` sections; all project attributes are specified concretely, and use
+``url`` to specify the fetch URL.
+
+This can be a useful debugging tool when multiple manifests are used.
+
+.. _re: https://docs.python.org/3/library/re.html
+
+.. rubric:: Footnotes
+
+.. [#true-manifest]
+
+   If for some reason you need to add a manifest file named :file:`true` or
+   :file:`false`, you can put it in quotes (``"true"``) to force the YAML
+   parser to treat it as a string.
