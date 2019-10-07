@@ -310,6 +310,8 @@ The ``import`` key's value can be:
 
 #. :ref:`A boolean <west-manifest-import-bool>`
 #. :ref:`A relative path <west-manifest-import-path>`
+#. :ref:`A mapping with additional configuration <west-manifest-import-map>`
+#. :ref:`A sequence of paths and mappings <west-manifest-import-seq>`
 
 We'll describe these options in order, with examples for different use cases:
 
@@ -318,6 +320,11 @@ We'll describe these options in order, with examples for different use cases:
 - :ref:`west-manifest-ex2.1`
 - :ref:`west-manifest-ex2.2`
 - :ref:`west-manifest-ex2.3`
+- :ref:`west-manifest-ex3.1`
+- :ref:`west-manifest-ex3.2`
+- :ref:`west-manifest-ex3.3`
+- :ref:`west-manifest-ex4.1`
+- :ref:`west-manifest-ex4.2`
 
 A more :ref:`formal description <west-manifest-formal>` of how this works is
 last, after the examples.
@@ -584,6 +591,285 @@ the name :file:`99-ci.yml` comes after the other files in that directory when
 sorted by name. This checks out the developer's branches in the projects named
 ``a-vendor-hal`` and ``an-application``.
 
+.. _west-manifest-import-map:
+
+Option 3: Mapping
+=================
+
+The ``import`` key can also contain a mapping with the following keys:
+
+- ``file``: The name of the manifest file or directory. This defaults
+  to :file:`west.yml` if not present.
+- ``whitelist``: Optional. This can be a sequence of project names to include,
+  or a mapping with ``names`` and ``paths`` keys that contain sequences of
+  projects to include. Projects are added in the order specified, regardless of
+  the order they appear in the named file or files, with ``names`` coming
+  before ``paths`` (i.e. in alphabetic order by key). If you need a different
+  order, use a sequence of mappings.
+- ``blacklist``: Optional, projects to exclude. This takes the same
+  values as ``whitelist``. If both are given, ``blacklist`` is applied
+  before ``whitelist``.
+- ``list-syntax``: Optional, specifies how the elements in ``whitelist`` and
+  ``blacklist`` should be interpreted. The default value is ``literal``,
+  meaning to interpret each element as the actual name of a project. It can
+  also be ``re`` to treat them as regular expressions, and ``glob`` to treat
+  them as shell globs. The Python `re`_ module's regular expression syntax is
+  currently used.
+- ``rename``: Optional mapping of ``from: to`` keys, specifying that the
+  project named ``from`` should be renamed ``to`` in the final manifest.
+
+.. _west-manifest-ex3.1:
+
+Example 3.1: Downstream with project whitelist
+----------------------------------------------
+
+Here is a pair of manifest files, representing an upstream and a
+downstream. The downstream doesn't want to use all the upstream
+projects, however. We'll assume the upstream :file:`west.yml` is
+hosted at ``https://git.example.com/upstream/manifest``.
+
+.. code-block:: yaml
+
+   # upstream west.yml:
+   manifest:
+     projects:
+       - name: app
+         url: https://git.example.com/upstream/app
+       - name: library
+         url: https://git.example.com/upstream/library
+         revision: refs/heads/only-in-upstream
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: unnecessary-project
+         url: https://git.example.com/upstream/unnecessary-project
+
+   # downstream west.yml:
+   manifest:
+     projects:
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+         import:
+           whitelist:
+             - library2
+             - app
+           rename:
+             app: upstream-app
+       - name: library2
+         path: upstream-lib2
+       - name: app
+         url: https://git.example.com/downstream/app
+       - name: library
+         url: https://git.example.com/downstream/library
+
+An equivalent manifest in a single file would be:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: library2
+         path: upstream-lib2
+         url: https://git.example.com/upstream/library-2
+       - name: upstream-app
+         url: https://git.example.com/upstream/app
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+       - name: app
+         url: https://git.example.com/downstream/app
+       - name: library
+         url: https://git.example.com/downstream/library
+
+If a whitelist had not been used:
+
+- The ``library`` project in the final manifest would have had its ``revision``
+  set to ``refs/heads/only-in-upstream``.
+- ``unnecessary-project`` would have been imported.
+
+.. _west-manifest-ex3.2:
+
+Example 3.2: Another whitelist example
+--------------------------------------
+
+Here is an example showing how to whitelist upstream's libraries only,
+using ``glob`` syntax.
+
+.. code-block:: yaml
+
+   # upstream west.yml:
+   manifest:
+     projects:
+       - name: app
+         url: https://git.example.com/upstream/app
+       - name: library
+         url: https://git.example.com/upstream/library
+         revision: refs/heads/only-in-upstream
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: unnecessary-project
+         url: https://git.example.com/upstream/unnecessary-project
+
+   # downstream west.yml:
+   manifest:
+     projects:
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+         import:
+           whitelist: library*
+           list-syntax: glob
+       - name: app
+         url: https://git.example.com/downstream/app
+
+An equivalent manifest in a single file would be:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: library
+         url: https://git.example.com/upstream/library
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+       - name: app
+         url: https://git.example.com/downstream/app
+
+.. _west-manifest-ex3.3:
+
+Example 3.3: Downstream with blacklist by path
+----------------------------------------------
+
+Here's an example showing how to blacklist all vendor HALs from upstream by
+common path prefix in the installation, add your own version for the chip
+you're targeting, and keep everything else.
+
+.. code-block:: yaml
+
+   # upstream west.yml:
+   manifest:
+     defaults:
+       remote: upstream
+     remotes:
+       - name: upstream
+         url-base: https://git.example.com/upstream
+     projects:
+       - name: app
+       - name: library
+       - name: library2
+       - name: foo
+         path: modules/hals/foo
+       - name: bar
+         path: modules/hals/bar
+       - name: baz
+         path: modules/hals/baz
+
+   # downstream west.yml:
+   manifest:
+     projects:
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+         import:
+           blacklist:
+             paths:
+               - modules/hals/*
+           list-syntax: glob
+       - name: foo
+         url: https://git.example.com/downstream/foo
+
+An equivalent manifest in a single file would be:
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: app
+         url: https://git.example.com/upstream/app
+       - name: library
+         url: https://git.example.com/upstream/library
+       - name: library2
+         url: https://git.example.com/upstream/library-2
+       - name: upstream
+         url: https://git.example.com/upstream/manifest
+       - name: foo
+         path: modules/hals/foo
+         url: https://git.example.com/downstream/foo
+
+Note that the ``path`` attribute for the ``foo`` project was last set by the
+upstream west.yml; this determines its final value.
+
+.. _west-manifest-import-seq:
+
+Option 4: Sequence of Files, Directories, and Mappings
+======================================================
+
+The ``import`` key can also contain a sequence of files, directories,
+and mappings.
+
+.. _west-manifest-ex4.1:
+
+Example 4.1: Downstream with sequence of manifest files
+-------------------------------------------------------
+
+This example manifest is equivalent to the manifest in
+:ref:`west-manifest-ex2.2`, with a sequence of explicitly named files.
+
+.. code-block:: yaml
+
+   manifest:
+     projects:
+       - name: zephyr
+         url: https://github.com/zephyrproject-rtos/zephyr
+         import: west.yml
+     self:
+       import:
+         - west.d/01-libraries.yml
+         - west.d/02-vendor-hals.yml
+         - west.d/03-applications.yml
+
+.. _west-manifest-ex4.2:
+
+Example 4.2: Import order illustration
+--------------------------------------
+
+A contrived example combining several possibilities to illustrate the order
+that manifest files are processed:
+
+.. code-block:: yaml
+
+   # kitchen-sink/west.yml
+   manifest:
+     remotes:
+       - name: my-remote
+         url-base: https://git.example.com
+     projects:
+       - name: my-library
+       - name: my-app
+       - name: zephyr
+         url: https://github.com/zephyrproject-rtos/zephyr
+         import: true
+       - name: another-upstream-manifest
+         url: https://git.example.com/another-upstream-manifest
+         import: west.d
+     self:
+       import:
+         - west.d/01-libraries.yml
+         - west.d/02-vendor-hals.yml
+         - west.d/03-applications.yml
+     defaults:
+       remote: my-remote
+
+In the above example, the manifest files are processed in the following order:
+
+#. :file:`zephyr/west.yml` is first, since it's the first file named in a
+   project's ``import`` key
+#. the files in :file:`another-upstream-manifest/west.d` are next (sorted by
+   file name), since that's the next project's ``import``
+#. :file:`kitchen-sink/west.yml` follows (with projects ``my-library`` etc.);
+   the main manifest comes after imported files in ``projects``
+#. files in :file:`kitchen-sink/west.d` follow, ordered by name, as the
+   ``import`` key in a ``self`` subsection is always processed last to
+   allow for final overrides
+
 .. _west-manifest-formal:
 
 Manifest Import Details
@@ -604,10 +890,11 @@ West sorts and processes files named by these ``import`` keys in this order:
    the main manifest file are processed last.
 
 An individual ``import`` attribute may name multiple manifest files to
-import. For example, this happens when the value is a relative path to a
-directory. Files in directories are processed in lexicographic order. Since the
-order of files in the final list is well defined, project attribute overrides
-are as well.
+import. For example, this happens when the value is a sequence or a relative
+path to a directory. Files in directories are processed in lexicographic
+order. Sequence elements are processed in the order in which they appear. Since
+the order of files in the final list is well defined, project attribute
+overrides are as well.
 
 .. note::
 
