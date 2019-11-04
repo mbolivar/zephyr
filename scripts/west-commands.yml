@@ -36,3 +36,7 @@ west-commands:
       - name: attach
         class: Attach
         help: interactively debug a board
+  - file: scripts/west_commands/gen_bob_checkout.py
+    commands:
+      - name: gen-bob-checkout
+        class: GenBobCheckout
