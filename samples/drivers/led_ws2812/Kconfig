@@ -1,0 +1,5 @@
+config SPI
+	bool
+	default y
+
+source "$ZEPHYR_BASE/Kconfig.zephyr"
