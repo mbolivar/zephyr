@@ -87,7 +87,7 @@ static int send_buf(struct ws2812_gpio_data *data, u8_t *buf, size_t len)
 				".start_bit:\n"
 
 				/* OUTSET = BIT(LED_PIN) */
-				"strb %[p], [%[r], #0]\n"
+				"str %[p], [%[r], #0]\n"
 
 				/* if (b & 0x80) goto .long */
 				"tst %[b], %[m]\n"
@@ -96,7 +96,7 @@ static int send_buf(struct ws2812_gpio_data *data, u8_t *buf, size_t len)
 				/* 0-bit */
 				"nop\nnop\n"
 				/* OUTCLR = BIT(LED_PIN) */
-				"strb %[p], [%[r], #4]\n"
+				"str %[p], [%[r], #4]\n"
 				"nop\nnop\nnop\n"
 				"b .next_bit\n"
 
@@ -104,7 +104,7 @@ static int send_buf(struct ws2812_gpio_data *data, u8_t *buf, size_t len)
 				".long:\n"
 				"nop\nnop\nnop\nnop\nnop\nnop\nnop\n"
 				/* OUTCLR = BIT(LED_PIN) */
-				"strb %[p], [%[r], #4]\n"
+				"str %[p], [%[r], #4]\n"
 
 				".next_bit:\n"
 				/* b <<= 1 */
