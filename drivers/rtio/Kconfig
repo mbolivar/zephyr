@@ -2,6 +2,7 @@
 
 #
 # Copyright (c) 2019 Tom Burdick <tom.burdick@electromatic.us>
+# Copyright (c) 2020 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -28,6 +29,18 @@ config RTIO_CONTEXT
 	# Private option; will be selected by the drivers if
 	# this feature is required.
 	bool
+
+comment "Sensor Drivers"
+
+config RTIO_HTS221
+	bool "HTS221 temperature and humidity driver"
+	depends on I2C
+	select RTIO_CONTEXT
+	help
+	  Enable the RTIO sensor driver for the HTS221 temperature and
+	  relative humidity sensor.
+
+comment "API Example Drivers"
 
 config RTIO_RAMP
 	bool "RTIO ramp driver"
