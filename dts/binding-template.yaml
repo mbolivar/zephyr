@@ -89,7 +89,7 @@ on-bus: <string describing bus type, e.g. "i2c">
 #   <property name>:
 #     required: <true | false>
 #     type: <string | int | boolean | array | uint8-array | string-array |
-#            phandle | phandles | phandle-array | compound>
+#            phandle | phandles | phandle-array | path | compound>
 #     description: <description of the property>
 #     enum:
 #       - <item1>
@@ -101,9 +101,27 @@ on-bus: <string describing bus type, e.g. "i2c">
 #
 # These types are available:
 #
+#   - 'type: string' is for properties that are assigned a single string, like
+#
+#         ident = "foo";
+#
 #   - 'type: int' is for properties that are assigned a single 32-bit value,
 #     like
 #
+#   - 'type: boolean' is for properties used as flags that don't take a value,
+#     like
+#
+#         hw-flow-control;
+#
+#     The macro generated for the property gets set to 1 if the property exists
+#     on the node, and to 0 otherwise. When combined with 'required: true',
+#     this type just forces the flag to appear on the node. The output will
+#     always be 1 in that case.
+#
+#     Warning: Since a macro is always generated for 'type: boolean'
+#     properties, don't use #ifdef in tests. Do this instead:
+#
+#         #if DT_SOME_BOOLEAN_PROP == 1
 #         frequency = <100>;
 #
 #   - 'type: array' is for properties that are assigned zero or more 32-bit
@@ -120,29 +138,10 @@ on-bus: <string describing bus type, e.g. "i2c">
 #
 #     This type is called 'bytestring' in the Devicetree specification.
 #
-#   - 'type: string' is for properties that are assigned a single string, like
-#
-#         ident = "foo";
-#
 #   - 'type: string-array' if for properties that are assigned zero or more
 #     strings, like
 #
 #         idents = "foo", "bar", "baz";
-#
-#   - 'type: boolean' is for properties used as flags that don't take a value,
-#     like
-#
-#         hw-flow-control;
-#
-#     The macro generated for the property gets set to 1 if the property exists
-#     on the node, and to 0 otherwise. When combined with 'required: true',
-#     this type just forces the flag to appear on the node. The output will
-#     always be 1 in that case.
-#
-#     Warning: Since a macro is always generated for 'type: boolean'
-#     properties, don't use #ifdef in tests. Do this instead:
-#
-#         #if DT_SOME_BOOLEAN_PROP == 1
 #
 #   - 'type: phandle' is for properties that are assigned a single phandle,
 #     like
