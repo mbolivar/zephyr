@@ -129,8 +129,23 @@ def augment_node(node):
     #   the node in the devicetree source, e.g.:
     #   ["DT_ALIAS_<NODE's_ALIAS_NAME>"]
 
-    # Add the <COMPAT>_<UNIT_ADDRESS> style legacy identifier.
-    node.z_primary_ident = node_ident(node)
+    # Return the primary identifier for a node, which is:
+    #
+    # NODEORD_<node.dep_ordinal>
+    #
+    # The rationale for this choice is:
+    #
+    # 1. every node has a globally unique dependency ordinal
+    # 2. it results in shorter macro names than node_path_ident()
+    #    would if that were the primary identifier instead.
+    node.z_primary_ident = f"NODEORD_{node.dep_ordinal}"
+
+    # Path-based identifier.
+    # We strip the leading / to avoid double underscores.
+    node.z_path_ident = f"PATH_{str2ident(node.path.lstrip('/'))}"
+
+    # The <COMPAT>_<UNIT_ADDRESS> style legacy identifier
+    node.z_legacy_ident = node_legacy_ident(node)
 
     # Add z_instances, which are used to create these macros:
     #
@@ -153,19 +168,28 @@ def augment_node(node):
         alias_ident = str2ident(alias)
         alias_idents.append(f"ALIAS_{alias_ident}")
         # NOTE: in some cases (e.g. PWM_LEDS_BLUE_PWM_LET for
-        # hexiwear_k64) this is a collision with node.z_primary_ident,
+        # hexiwear_k64) this is a collision with node.z_legacy_ident,
         # making the all_idents checking below necessary.
         alias_idents.append(f"{compat_s}_{alias_ident}")
     node.z_alias_idents = alias_idents
+
+    # Add z_label_idents, which are formed from devicetree labels
+    # for the node. This is distinct from the label property
+    # used by zephyr as an argument for device_get_binding().
+    node.z_label_idents = [f'NODELABEL_{str2ident(label)}'
+                           for label in node.labels]
 
     # z_other_idents are all the other identifiers for the node. We
     # use the term "other" instead of "alias" here because that
     # overlaps with the node's true aliases in the DTS, which is just
     # part of what makes up z_other_idents.
-    all_idents = set()
+    other_idents = [node.z_path_ident,
+                    node.z_legacy_ident]
+    all_idents = set(other_idents)
     all_idents.add(node.z_primary_ident)
-    other_idents = []
-    for ident in node.z_inst_idents + node.z_alias_idents:
+    for ident in (node.z_inst_idents +
+                  node.z_alias_idents +
+                  node.z_label_idents):
         if ident not in all_idents:
             other_idents.append(ident)
             all_idents.add(ident)
@@ -755,11 +779,13 @@ def write_existence_flags(node):
         out(f"INST_{instance_no}_{str2ident(compat)}", 1)
 
 
-def node_ident(node):
-    # Returns an identifier for 'node'. Used e.g. when building macro names.
-
-    # TODO: Handle PWM on STM
-    # TODO: Better document the rules of how we generate things
+def node_legacy_ident(node):
+    # Returns a legacy identifier for 'node' used when building macro
+    # names. This particular type of identifier has seldom been useful
+    # compared to DT_INST_ (for drivers) or DT_ALIAS_ (for samples)
+    # node identifiers, but we'll keep it around for now.
+    #
+    # TODO see if this can be removed.
 
     ident = ""
 
