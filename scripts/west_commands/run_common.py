@@ -6,6 +6,7 @@
 '''
 
 import argparse
+import importlib
 import logging
 from os import close, getcwd, path
 from subprocess import CalledProcessError
@@ -143,6 +144,10 @@ def do_run_common(command, user_args, user_runner_args):
     # Load runners.yaml.
     runners_yaml = runners_yaml_path(cache)
     runner_config = load_runners_yaml(runners_yaml, user_args)
+
+    # Check if runners.yaml wants files imported (e.g. to define runners)
+    for py_file in runner_config.get('py-files', []):
+        import_module(py_file)
 
     # Get a concrete ZephyrBinaryRunner subclass to use based on
     # runners.yaml and command line arguments.
@@ -468,3 +473,9 @@ def dump_wrapped_lines(text, indent):
                               break_on_hyphens=False,
                               break_long_words=False):
         log.inf(line)
+
+def import_module(py_file):
+    spec = importlib.util.spec_from_file_location('runners.custom_py_file',
+                                                  py_file)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)

@@ -86,6 +86,24 @@ args:
     endif()
   endforeach()
 
+  # Allow boards with out of tree runners (whether or not those boards
+  # themselves are in tree) to declare runner classes.
+  get_property(have_oot GLOBAL PROPERTY BOARD_RUNNER_HAVE_OOT)
+  if(have_oot)
+    string(APPEND yaml_contents "\
+py-files:
+")
+    foreach(runner ${runners})
+      string(MAKE_C_IDENTIFIER ${runner} runner_id)
+      get_property(python_file GLOBAL PROPERTY "BOARD_RUNNER_PY_${runner_id}")
+      if(python_file)
+        string(APPEND yaml_contents "\
+  - ${python_file}
+")
+      endif()
+    endforeach()
+  endif()
+
   # Write the final contents and set its location in the cache.
   file(WRITE "${runners_yaml}" "${yaml_contents}")
   set(ZEPHYR_RUNNERS_YAML "${runners_yaml}" CACHE INTERNAL

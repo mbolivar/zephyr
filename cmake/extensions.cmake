@@ -723,6 +723,19 @@ function(board_finalize_runner_args runner)
   set_property(GLOBAL APPEND PROPERTY ZEPHYR_RUNNERS ${runner})
 endfunction()
 
+# Add an out of tree runner with arguments.
+#
+# Basic usage:
+#   board_add_custom_runner("my_runner_name" "runner_implementation_file.py"
+#                           "--option1=value" "--option2=value2" ...)
+function(board_add_oot_runner name python_file)
+  set_property(GLOBAL PROPERTY BOARD_RUNNER_HAVE_OOT YES)
+  board_runner_args(${name} ${ARGN})
+  string(MAKE_C_IDENTIFIER ${name} runner_id)
+  set_property(GLOBAL PROPERTY BOARD_RUNNER_PY_${runner_id} "${python_file}")
+  board_finalize_runner_args(${name})
+endfunction()
+
 # 1.5. Misc.
 
 # zephyr_check_compiler_flag is a part of Zephyr's toolchain
