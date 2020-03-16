@@ -10,6 +10,11 @@
 
 #include <zephyr/types.h>
 #include <device.h>
+#include <devicetree.h>
+
+#define DT_DRV_COMPAT bosch_bme280
+#define BME280_BUS_SPI DT_ANY_INST_ON_BUS(spi)
+#define BME280_BUS_I2C DT_ANY_INST_ON_BUS(i2c)
 
 #define BME280_REG_PRESS_MSB            0xF7
 #define BME280_REG_COMP_START           0x88
@@ -100,19 +105,22 @@
 					 BME280_FILTER |  \
 					 BME280_SPI_3W_DISABLE)
 
+/*
+ * This driver is an example of why devices should be resolvable at
+ * link time instead of only at runtime via device_get_binding().
+ *
+ * We only need to store 'bus' and 'spi_cs' in RAM because we can't
+ * resolve devices at link time. They should be moved to ROM if that
+ * becomes possible. That would in turn enable several further
+ * cleanups.
+ */
+
 struct bme280_data {
-#ifdef DT_BOSCH_BME280_BUS_I2C
-	struct device *i2c_master;
-	u16_t i2c_slave_addr;
-#elif defined DT_BOSCH_BME280_BUS_SPI
-	struct device *spi;
-	struct spi_config spi_cfg;
-#if defined(DT_INST_0_BOSCH_BME280_CS_GPIOS_CONTROLLER)
-	struct spi_cs_control spi_cs_control;
+	struct device *bus;
+#if BME280_BUS_SPI
+	struct spi_cs_control spi_cs;
 #endif
-#else
-#error "BME280 device type not specified"
-#endif
+
 	/* Compensation parameters. */
 	u16_t dig_t1;
 	s16_t dig_t2;
@@ -142,6 +150,38 @@ struct bme280_data {
 	s32_t t_fine;
 
 	u8_t chip_id;
+};
+
+struct bme280_spi_cfg {
+	struct spi_config spi_cfg;
+	const char *cs_gpios_label;
+};
+
+union bme280_bus_config {
+#if BME280_BUS_SPI
+	const struct bme280_spi_cfg *spi_cfg;
+#endif
+#if BME280_BUS_I2C
+	u16_t i2c_addr;
+#endif
+};
+
+struct bme280_config {
+	const char *bus_label;
+	const struct bme280_reg_io *reg_io;
+	const union bme280_bus_config bus_config;
+};
+
+typedef int (*bme280_reg_read_fn)(struct device *bus,
+				  const union bme280_bus_config *bus_config,
+				  u8_t start, u8_t *buf, int size);
+typedef int (*bme280_reg_write_fn)(struct device *bus,
+				   const union bme280_bus_config *bus_config,
+				   u8_t reg, u8_t val);
+
+struct bme280_reg_io {
+	bme280_reg_read_fn read;
+	bme280_reg_write_fn write;
 };
 
 #endif /* ZEPHYR_DRIVERS_SENSOR_BME280_BME280_H_ */
