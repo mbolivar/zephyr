@@ -719,18 +719,49 @@ struct gpio_dt_spec {
  */
 #define GPIO_MAX_PINS_PER_PORT (sizeof(gpio_port_pins_t) * __CHAR_BIT__)
 
+/** TODO: add doxygen
+ *
+ * The base concept that a "gpio controller" or "gpio device" is a
+ * "gpio PORT" is wrong -- this type should let us tell them apart on
+ * a device-by-device basis
+ */
+enum gpio_dev_type {
+	/** GPIO device provides port-based control */
+	GPIO_DEV_PORT,
+	/** GPIO device provides bin-based control */
+	GPIO_DEV_PIN,
+};
+
+/**
+ * TODO add doxygen
+ *
+ * This should provide pin-by-pin information
+ */
+struct gpio_dev_pins {
+	size_t ngpios;
+	struct gpio_dev_pin pins[];
+};
+
 /**
  * This structure is common to all GPIO drivers and is expected to be
  * the first element in the object pointed to by the config field
  * in the device structure.
  */
 struct gpio_driver_config {
-	/** Mask identifying pins supported by the controller.
-	 *
-	 * Initialization of this mask is the responsibility of device
-	 * instance generation in the driver.
-	 */
-	gpio_port_pins_t port_pin_mask;
+	union {
+		/** Mask identifying pins supported by the controller.
+		 *
+		 * Initialization of this mask is the responsibility of device
+		 * instance generation in the driver.
+		 */
+		gpio_port_pins_t port_pin_mask;
+#ifdef CONFIG_GPIO_PIN_OPERATIONS
+		struct gpio_dev_pins *pins;
+#endif
+	};
+#ifdef CONFIG_GPIO_PIN_OPERATIONS
+	enum gpio_dev_type dev_type;
+#endif
 };
 
 /**
@@ -738,12 +769,17 @@ struct gpio_driver_config {
  * element in the driver's struct driver_data declaration.
  */
 struct gpio_driver_data {
-	/** Mask identifying pins that are configured as active low.
-	 *
-	 * Management of this mask is the responsibility of the
-	 * wrapper functions in this header.
-	 */
-	gpio_port_pins_t invert;
+	union {
+		/** Mask identifying pins that are configured as active low.
+		 *
+		 * Management of this mask is the responsibility of the
+		 * wrapper functions in this header.
+		 */
+		gpio_port_pins_t invert;
+#ifdef CONFIG_GPIO_PIN_OPERATIONS
+		struct gpio_dev_pins *active_low_pins;
+#endif
+	};
 };
 
 struct gpio_callback;
