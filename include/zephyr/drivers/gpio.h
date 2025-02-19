@@ -230,6 +230,8 @@ extern "C" {
  *
  * The pin with index n is present in the set if and only if the bit
  * identified by (1U << n) is set.
+ *
+ * FIXME: needs comments to address interop with CONFIG_GPIO_PIN_OPERATIONS
  */
 typedef uint32_t gpio_port_pins_t;
 
@@ -243,6 +245,8 @@ typedef uint32_t gpio_port_pins_t;
  *
  * Values of this type are often paired with a `gpio_port_pins_t` value
  * that specifies which encoded pin values are valid for the operation.
+ *
+ * FIXME: needs comments to address interop with CONFIG_GPIO_PIN_OPERATIONS
  */
 typedef uint32_t gpio_port_value_t;
 
@@ -563,6 +567,10 @@ struct gpio_dt_spec {
  * @param node_id GPIO controller node identifier.
  * @param ngpios number of GPIOs.
  * @return the bitmask of reserved gpios
+ *
+ * FIXME needs investigation; we likely need to move this logic into
+ * edtlib and gen_defines.py, then add some build-time error handling
+ * for bit overflows.
  */
 #define GPIO_DT_RESERVED_RANGES_NGPIOS(node_id, ngpios)			       \
 	((gpio_port_pins_t)						       \
@@ -580,6 +588,8 @@ struct gpio_dt_spec {
  *
  * @param node_id GPIO controller node identifier.
  * @return the bitmask of reserved gpios
+ *
+ * FIXME same issue as GPIO_DT_RESERVED_RANGES_NGPIOS()
  */
 #define GPIO_DT_RESERVED_RANGES(node_id)				       \
 	GPIO_DT_RESERVED_RANGES_NGPIOS(node_id, DT_PROP(node_id, ngpios))
@@ -592,6 +602,8 @@ struct gpio_dt_spec {
  * @return the bitmask of reserved gpios
  * @param ngpios  number of GPIOs
  * @see GPIO_DT_RESERVED_RANGES()
+ *
+ * FIXME same issue as GPIO_DT_RESERVED_RANGES_NGPIOS()
  */
 #define GPIO_DT_INST_RESERVED_RANGES_NGPIOS(inst, ngpios)		       \
 		GPIO_DT_RESERVED_RANGES_NGPIOS(DT_DRV_INST(inst), ngpios)
@@ -603,6 +615,8 @@ struct gpio_dt_spec {
  * @param inst DT_DRV_COMPAT instance number
  * @return the bitmask of reserved gpios
  * @see GPIO_DT_RESERVED_RANGES()
+ *
+ * FIXME same issue as GPIO_DT_RESERVED_RANGES_NGPIOS()
  */
 #define GPIO_DT_INST_RESERVED_RANGES(inst)				       \
 		GPIO_DT_RESERVED_RANGES(DT_DRV_INST(inst))
@@ -654,6 +668,8 @@ struct gpio_dt_spec {
  * @param node_id GPIO controller node identifier.
  * @param ngpios  number of GPIOs
  * @return the bitmask of allowed gpios
+ *
+ * FIXME same issue as GPIO_DT_RESERVED_RANGES_NGPIOS()
  */
 #define GPIO_DT_PORT_PIN_MASK_NGPIOS_EXC(node_id, ngpios)		       \
 	((gpio_port_pins_t)						       \
@@ -674,12 +690,32 @@ struct gpio_dt_spec {
  * @param ngpios number of GPIOs
  * @return the bitmask of allowed gpios
  * @see GPIO_DT_NGPIOS_PORT_PIN_MASK_EXC()
+ *
+ * FIXME same issue as GPIO_DT_RESERVED_RANGES_NGPIOS()
  */
 #define GPIO_DT_INST_PORT_PIN_MASK_NGPIOS_EXC(inst, ngpios)	\
 		GPIO_DT_PORT_PIN_MASK_NGPIOS_EXC(DT_DRV_INST(inst), ngpios)
 
 /**
  * @brief Maximum number of pins that are supported by `gpio_port_pins_t`.
+ *
+ * FIXME needs support when CONFIG_GPIO_PIN_OPERATIONS=y.
+ *
+ * - could do this in the preprocessor by maxing out `ngpios` over all
+ *   nodes in the tree for which DT_NODE_HAS_PROP(node_id, gpio_controller)==1,
+ *   but that's likely to lead to confusing error messages, so
+ *
+ * - likely better to move that logic to gen_defines.py instead
+ *
+ * - there's an in-tree usage in gpio_emul.c that we can likely use for
+ *   testing
+ *
+ * - gpio_shell.c uses it too and needs to be extended since it's got
+ *   an abstraction violation that assumes the value is less than 64
+ *
+ * - test_port.c uses it as well; quite some rework to this test suite
+ *   will be needed if we want to support running it with
+ *   CONFIG_GPIO_PIN_OPERATIONS=y
  */
 #define GPIO_MAX_PINS_PER_PORT (sizeof(gpio_port_pins_t) * __CHAR_BIT__)
 
