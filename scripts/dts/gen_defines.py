@@ -287,7 +287,7 @@ def write_special_props(node: edtlib.Node) -> None:
     # we can't capture with the current bindings language.
     write_pinctrls(node)
     write_fixed_partitions(node)
-    write_gpio_hogs(node)
+    write_gpios(node)
 
 
 def write_ranges(node: edtlib.Node) -> None:
@@ -563,8 +563,27 @@ def write_fixed_partitions(node: edtlib.Node) -> None:
     flash_area_num += 1
 
 
+def write_gpios(node: edtlib.Node) -> None:
+    # Write special macros for GPIOs
+
+    write_gpio_controller_props(node)
+    write_gpio_hogs(node)
+
+
+def write_gpio_controller_props(node: edtlib.Node) -> None:
+    # Write special macros for GPIO controller nodes
+
+    if not isinstance(node, edtlib.GpioController):
+        return
+
+    macro = f"{node.z_path_id}_GPIO_CTLR"
+    out_dt_define(f"{macro}_FOREACH_RESERVED_RANGE", TODO)
+
+
 def write_gpio_hogs(node: edtlib.Node) -> None:
     # Write special macros for gpio-hog node properties.
+    # These are for the hog nodes themselves, not their parent
+    # GPIO controllers.
 
     macro = f"{node.z_path_id}_GPIO_HOGS"
     macro2val = {}
