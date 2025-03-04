@@ -201,6 +201,51 @@ extern "C" {
 	DT_GPIO_FLAGS_BY_IDX(node_id, gpio_pha, 0)
 
 /**
+ * @brief Get the number of reserved GPIOs in a GPIO controller node
+ *
+ * Example devicetree fragment:
+ *
+ * @code{.dts}
+ *     n1: gpio@... {
+ *             gpio-controller;
+ *     };
+ *
+ *     n2: gpio@... {
+ *             gpio-controller;
+ *             gpio-reserved-ranges = <3 2>;
+ *     };
+ *
+ *     n3: gpio@... {
+ *             gpio-controller;
+ *             gpio-reserved-ranges = <3 2>, <10 1>;
+ *     };
+ * @endcode
+ *
+ * Example usage:
+ *
+ * @code{.c}
+ *     DT_NUM_GPIO_RESERVED_RANGES(DT_NODELABEL(n1)) // 0
+ *     DT_NUM_GPIO_RESERVED_RANGES(DT_NODELABEL(n2)) // 2
+ *     DT_NUM_GPIO_RESERVED_RANGES(DT_NODELABEL(n3)) // 3
+ * @endcode
+ *
+ * Results are undefined if the argument is not a node identifier
+ * for a GPIO controller node.
+ *
+ * Note that this macro does NOT return the number of reserved ranges:
+ * it returns the actual number of reserved GPIOs.
+ *
+ * @param node_id node identifier for a GPIO controller node
+ * @return number of individual GPIOs which are reserved (unusable)
+ */
+#define DT_NUM_GPIO_RESERVED(node_id)  TODO_IS_THIS_NEEDED_OR_WAT
+
+#define DT_FOREACH_GPIO_RESERVED(node_id, fn) TODO
+#define DT_FOREACH_GPIO_RESERVED_SEP(node_id, fn, sep) TODO
+#define DT_FOREACH_GPIO_RESERVED_VARGS(node_id, fn, ...) TODO
+#define DT_FOREACH_GPIO_RESERVED_SEP_VARGS(node_id, fn, sep, ...) TODO
+
+/**
  * @brief Get the number of GPIO hogs in a node
  *
  * This expands to the number of hogged GPIOs, or zero if there are none.
