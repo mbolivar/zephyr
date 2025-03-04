@@ -576,6 +576,7 @@ def write_gpio_controller_props(node: edtlib.Node) -> None:
     if not isinstance(node, edtlib.GpioController):
         return
 
+    reserved_gpios = node.reserved_gpios
     macro = f"{node.z_path_id}_GPIO_CTLR"
     out_dt_define(f"{macro}_FOREACH_RESERVED_RANGE", TODO)
 
