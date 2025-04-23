@@ -137,6 +137,10 @@ WestCommand
    .. automethod:: add_pre_run_hook
    .. versionadded:: 1.0.0
 
+   .. py:attribute:: die_if_no_git
+
+   .. versionadded:: 0.11.0
+
    .. NOTE: the following 'method' (not 'automethod') directives were added for
       expediency during the west v1.2 release time frame to work around a build
       failure in this zephyr documentation that could not be fixed without
