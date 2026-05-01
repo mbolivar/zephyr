@@ -11,6 +11,7 @@ documented at https://docs.zephyrproject.org/latest/build/dts/bindings-upstream.
 """
 
 import argparse
+import functools
 import glob
 import re
 import sys
@@ -29,6 +30,23 @@ ZEPHYR_BASE = Path(__file__).resolve().parents[2]
 # Pre-compiled regex for description_style_check: matches an indented
 # 'description: >' line (inside a properties block, not at top level).
 _FOLDED_SCALAR_RE = re.compile(r'^\s+description\s*:\s*>\s*(?:#.*)?$')
+
+
+@functools.lru_cache(maxsize=None)
+def _restate_patterns(default_val):
+    """
+    Return compiled regex patterns that detect descriptions which only
+    restate *default_val* without providing any real justification.
+
+    Results are cached by default_val to avoid recompiling the same patterns
+    when multiple properties across different bindings share the same default.
+    """
+    escaped = re.escape(str(default_val))
+    return (
+        re.compile(rf'^default(?:\s+value)?\s+is\s+{escaped}\.?$', re.IGNORECASE),
+        re.compile(rf'^defaults?\s+to\s+{escaped}\.?$', re.IGNORECASE),
+        re.compile(rf'^the\s+default(?:\s+value)?\s+is\s+{escaped}\.?$', re.IGNORECASE),
+    )
 
 
 class Binding:
@@ -202,22 +220,7 @@ class DevicetreeBindingsCheck:
             # Conservative heuristic: flag descriptions that appear to do
             # nothing more than restate the default value.  Only single-clause
             # descriptions that match one of the patterns below are flagged.
-            default_val = str(raw_prop['default'])
-            restate_patterns = [
-                re.compile(
-                    rf'^default(?:\s+value)?\s+is\s+{re.escape(default_val)}\.?$',
-                    re.IGNORECASE,
-                ),
-                re.compile(
-                    rf'^defaults?\s+to\s+{re.escape(default_val)}\.?$',
-                    re.IGNORECASE,
-                ),
-                re.compile(
-                    rf'^the\s+default(?:\s+value)?\s+is\s+{re.escape(default_val)}\.?$',
-                    re.IGNORECASE,
-                ),
-            ]
-            for pat in restate_patterns:
+            for pat in _restate_patterns(raw_prop['default']):
                 if pat.match(desc_text):
                     self.failure(
                         f"{binding.path}: property '{prop_name}' description "
