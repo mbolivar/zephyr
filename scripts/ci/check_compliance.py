@@ -29,7 +29,22 @@ ZEPHYR_BASE = Path(__file__).resolve().parents[2]
 
 # Pre-compiled regex for description_style_check: matches an indented
 # 'description: >' line (inside a properties block, not at top level).
+# At least one leading whitespace character is required so top-level binding
+# descriptions (which are at column 0) are not matched.
 _FOLDED_SCALAR_RE = re.compile(r'^\s+description\s*:\s*>\s*(?:#.*)?$')
+
+# Properties that cannot have defaults defined in bindings per the docs.
+_DEFAULT_SKIP_PROPS = frozenset({'status', '#address-cells', '#size-cells'})
+
+_DEFAULT_DOC_URL = (
+    'https://docs.zephyrproject.org/latest/build/dts/'
+    'bindings-upstream.html#rules-for-default-values'
+)
+
+_DESCRIPTION_STYLE_DOC_URL = (
+    'https://docs.zephyrproject.org/latest/build/dts/'
+    'bindings-upstream.html#descriptions'
+)
 
 
 @functools.lru_cache(maxsize=None)
@@ -94,7 +109,7 @@ def bindings_from_paths(paths):
             b = Binding(path)
             if b.compatible is not None:
                 bindings.append(b)
-        except Exception as e:
+        except (yaml.YAMLError, OSError, ValueError) as e:
             print(f"Warning: could not parse {path}: {e}", file=sys.stderr)
     return bindings
 
@@ -190,16 +205,9 @@ class DevicetreeBindingsCheck:
         Rule documented at:
         https://docs.zephyrproject.org/latest/build/dts/bindings-upstream.html#rules-for-default-values
         """
-        # These properties cannot have defaults in bindings per the docs.
-        _SKIP_PROPS = {'status', '#address-cells', '#size-cells'}
-        _DOC_URL = (
-            'https://docs.zephyrproject.org/latest/build/dts/'
-            'bindings-upstream.html#rules-for-default-values'
-        )
-
         raw_props = binding.raw.get('properties') or {}
         for prop_name, raw_prop in raw_props.items():
-            if prop_name in _SKIP_PROPS:
+            if prop_name in _DEFAULT_SKIP_PROPS:
                 continue
             if not isinstance(raw_prop, dict):
                 continue
@@ -213,7 +221,7 @@ class DevicetreeBindingsCheck:
                 self.failure(
                     f"{binding.path}: property '{prop_name}' has a 'default' value "
                     f"but no 'description' explaining why the default was chosen.\n"
-                    f"\tSee {_DOC_URL}"
+                    f"\tSee {_DEFAULT_DOC_URL}"
                 )
                 continue
 
@@ -226,7 +234,7 @@ class DevicetreeBindingsCheck:
                         f"{binding.path}: property '{prop_name}' description "
                         f"only restates the default value without explaining "
                         f"why it was chosen.\n"
-                        f"\tSee {_DOC_URL}"
+                        f"\tSee {_DEFAULT_DOC_URL}"
                     )
                     break
 
@@ -245,23 +253,18 @@ class DevicetreeBindingsCheck:
         Rule documented at:
         https://docs.zephyrproject.org/latest/build/dts/bindings-upstream.html#descriptions
         """
-        _DOC_URL = (
-            'https://docs.zephyrproject.org/latest/build/dts/'
-            'bindings-upstream.html#descriptions'
-        )
-
         try:
             with open(binding.path) as f:
                 for line_num, line in enumerate(f, start=1):
                     # Match "description: >" only when indented (i.e. inside a
                     # properties block).  Top-level binding descriptions are at
-                    # column 0 and are not checked here.
+                    # column 0 and are not matched by _FOLDED_SCALAR_RE.
                     if _FOLDED_SCALAR_RE.match(line):
                         self.failure(
                             f"{binding.path}:{line_num}: "
                             f"use 'description: |' for multi-line descriptions, "
                             f"not 'description: >'. "
-                            f"See {_DOC_URL}"
+                            f"See {_DESCRIPTION_STYLE_DOC_URL}"
                         )
         except OSError:
             pass
