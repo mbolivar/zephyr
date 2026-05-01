@@ -91,8 +91,9 @@ class Binding:
         self.on_bus = self.raw.get('on-bus')
 
         props = self.raw.get('properties') or {}
-        self.prop2specs = {name: spec for name, spec in props.items()
-                          if isinstance(spec, dict)}
+        self.prop2specs = {
+            name: spec for name, spec in props.items() if isinstance(spec, dict)
+        }
 
         child_raw = self.raw.get('child-binding')
         self.child_binding = Binding(path, child_raw) if child_raw else None
