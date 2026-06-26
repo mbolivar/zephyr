@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/serial/zephyr,native-pty-uart.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/serial/zephyr,native-pty-uart.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Native PTY UART
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,native-pty-uart
+  current-speed:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Initial baud rate setting for UART
+  data-bits:
+    description: Sets the number of data bits.
+    enum:
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+  hw-flow-control:
+    type: boolean
+    description: Set to enable RTS/CTS flow control at boot time
+  on-stdinout:
+    type: boolean
+    description: |-
+      Connect this PTY UART instance to the stdin & stdout of the calling shell/terminal which
+      invoked the native executable. This is good enough for automated testing, or when feeding
+      from a file/pipe.
+      NOTE: Only one PTY UART can be connected to the stdin/out. If this property is set in several,
+      it will only apply to whichever is instantiated first. Note that if
+      CONFIG_UART_NATIVE_PTY_0_ON_STDINOUT is set this property is effectively ignored.
+      It is discouraged to use this property with the shell interactively: The default terminal
+      configuration is not appropriate for Zephyr's shell interactive use and several shell
+      functions like autocomplete or the history search will appear faulty.
+  parity:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Configures the parity of the adapter. Enumeration id 0 for none, 1 for odd
+      and 2 for even parity, 3 for mark parity and 4 for space parity.
+      Default to none if not specified.
+    enum:
+    - none
+    - odd
+    - even
+    - mark
+    - space
+    default: none
+  stop-bits:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Sets the number of stop bits.
+    enum:
+    - '0_5'
+    - '1'
+    - '1_5'
+    - '2'
+required:
+- compatible
+additionalProperties: true

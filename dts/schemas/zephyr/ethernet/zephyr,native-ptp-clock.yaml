@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/ethernet/zephyr,native-ptp-clock.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/ethernet/zephyr,native-ptp-clock.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Native Sim PTP (Precision Time Protocol) Clock
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  This binding describes a simulated PTP clock for use with native_sim. It provides
+  an interface to simulate a PTP clock, which can be used for testing and development
+  purposes without requiring actual hardware.
+properties:
+  compatible:
+    const: zephyr,native-ptp-clock
+required:
+- compatible
+additionalProperties: true

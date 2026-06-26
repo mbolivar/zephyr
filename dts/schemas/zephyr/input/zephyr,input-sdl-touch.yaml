@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/input/zephyr,input-sdl-touch.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/input/zephyr,input-sdl-touch.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: SDL based emulated touch panel
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,input-sdl-touch
+  display:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Handle to the display that the input events are raised for
+required:
+- compatible
+additionalProperties: true

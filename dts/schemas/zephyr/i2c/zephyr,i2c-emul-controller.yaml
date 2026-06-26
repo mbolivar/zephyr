@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/i2c/zephyr,i2c-emul-controller.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/i2c/zephyr,i2c-emul-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Zephyr I2C Emulation controller
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,i2c-emul-controller
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 0
+  cq-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Size of the completion queue for blocking requests
+    default: 4
+  forwards:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |-
+      When added, read/write requests sent to this bus for a given address will
+      be forwarded to the specified phandle (must be another i2c bus). As an
+      example, if we wanted to forward any requests from i2c0@0x20 to i2c1, we
+      would use:
+
+      &i2c0 {
+        forward = <&i2c1 0x20>;
+      };
+  reg: true
+  sq-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Size of the submission queue for blocking requests
+    default: 4
+  target-buffered-mode:
+    type: boolean
+    description: |-
+      This option is used when the I2C target is enabled and it can support
+      buffered mode for I2C target transfer. When 'false', the target will use
+      PIO (Programmed I/O) mode.
+required:
+- compatible
+- '#address-cells'
+- '#size-cells'
+- reg
+additionalProperties: true

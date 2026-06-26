@@ -1,0 +1,104 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/can/zephyr,native-linux-can.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/can/zephyr,native-linux-can.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Zephyr CAN driver using Linux SocketCAN
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,native-linux-can
+  bitrate:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Initial bitrate in bit/s. If this is unset, the initial bitrate is set to
+      CONFIG_CAN_DEFAULT_BITRATE.
+  bitrate-data:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Initial data phase bitrate in bit/s.  If this is unset, the initial data phase bitrate is set
+      to CONFIG_CAN_DEFAULT_BITRATE_DATA.
+  bus-speed:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Deprecated. This property has been renamed to bitrate.
+
+      Initial bitrate in bit/s. If this is unset, the initial bitrate is set to
+      CONFIG_CAN_DEFAULT_BITRATE.
+    deprecated: true
+  bus-speed-data:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Deprecated. This property has been renamed to bitrate-data.
+
+      Initial data phase bitrate in bit/s.  If this is unset, the initial data phase bitrate is set
+      to CONFIG_CAN_DEFAULT_BITRATE_DATA.
+    deprecated: true
+  host-interface:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Linux host interface name (e.g. zcan0, vcan0, can0, ...).
+      This property can be overridden using the --can-if command-line
+      option. Note that it applies for every instance of this driver.
+  phys:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: |-
+      Actively controlled CAN transceiver.
+
+      Example:
+        transceiver0: can-phy0 {
+          compatible = "nxp,tja1040", "can-transceiver-gpio";
+          standby-gpios = <gpioa 0 GPIO_ACTIVE_HIGH>;
+          max-bitrate = <1000000>;
+          #phy-cells = <0>;
+        };
+
+        &can0 {
+          status = "okay";
+
+          phys = <&transceiver0>;
+        };
+  sample-point:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Initial sample point in per mille (e.g. 875 equals 87.5%).
+
+      If this is unset (or if it is set to 0), the initial sample point will default to 75.0% for
+      bitrates over 800 kbit/s, 80.0% for bitrates over 500 kbit/s, and 87.5% for all other
+      bitrates.
+  sample-point-data:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Initial data phase sample point in per mille (e.g. 875 equals 87.5%).
+
+      If this is unset (or if it is set to 0), the initial sample point will default to 75.0% for
+      bitrates over 800 kbit/s, 80.0% for bitrates over 500 kbit/s, and 87.5% for all other
+      bitrates.
+patternProperties:
+  ^.*$:
+    properties:
+      max-bitrate:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: The maximum bitrate supported by the CAN transceiver in bits/s.
+      min-bitrate:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: The minimum bitrate supported by the CAN transceiver in bits/s.
+    required:
+    - max-bitrate
+    description: |-
+      Passive CAN transceiver. The child node must be named "can-transceiver".
+
+      Example:
+        &can0 {
+          status = "okay";
+
+          can-transceiver {
+            max-bitrate = <1000000>;
+          };
+        };
+required:
+- compatible
+- host-interface
+additionalProperties: true

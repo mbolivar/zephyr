@@ -13,3 +13,26 @@ compatibles:
     - flags
   ti,stellaris-uart:
     bus: uart
+  zephyr,adc-emul:
+    io-channel-cells:
+    - input
+  zephyr,dma-emul:
+    bus: dma
+  zephyr,espi-emul-controller:
+    bus: espi
+  zephyr,gpio-emul:
+    gpio-cells:
+    - pin
+    - flags
+  zephyr,i2c-emul-controller:
+    forward-cells:
+    - addr
+    bus: i2c
+  zephyr,mspi-emul-controller:
+    bus: mspi
+  zephyr,native-posix-udc:
+    bus: usb
+  zephyr,native-pty-uart:
+    bus: uart
+  zephyr,spi-emul-controller:
+    bus: spi

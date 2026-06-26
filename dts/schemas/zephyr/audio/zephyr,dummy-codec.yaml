@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/audio/zephyr,dummy-codec.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/audio/zephyr,dummy-codec.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Dummy codec
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,dummy-codec
+required:
+- compatible
+additionalProperties: true

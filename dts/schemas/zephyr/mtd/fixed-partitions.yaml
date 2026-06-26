@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/mtd/fixed-partitions.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/mtd/fixed-partitions.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Fixed partitions of a flash (or other non-volatile storage) memory.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Fixed partitions of a flash (or other non-volatile storage) memory.
+
+  Note that the usual name for this node is 'partitions'.
+  The fixed-partitions node should be a child of the flash
+  memory node. Note also that the flash memory node is usually
+  different from the node representing the flash controller
+  IP block.
+
+  Above, slot0_partition's register address 0xc000 means that
+  the partition begins at that offset from the parent flash
+  memory flash0's base address. That is, partition addresses
+  are relative; physical addresses must be calculated by adding
+  the start address of flash0 in memory to each partition's
+  reg address.
+properties:
+  compatible:
+    const: fixed-partitions
+patternProperties:
+  ^.*$:
+    properties:
+      read-only:
+        type: boolean
+        description: set this property if the partition is read-only
+      reg: true
+    required:
+    - reg
+    description: |-
+      Each child node of the fixed-partitions node represents
+      an individual flash partition. These should usually
+      look like this:
+
+        partition_nodelabel: partition@START_OFFSET {
+                label = "human-readable-name";
+                reg = <0xSTART_OFFSET 0xSIZE>;
+        };
+required:
+- compatible
+additionalProperties: true

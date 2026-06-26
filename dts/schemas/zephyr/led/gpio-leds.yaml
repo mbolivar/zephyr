@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/led/gpio-leds.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/led/gpio-leds.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Group of GPIO-controlled LEDs.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Group of GPIO-controlled LEDs.
+
+  Each LED is defined in a child node of the gpio-leds node.
+properties:
+  compatible:
+    const: gpio-leds
+patternProperties:
+  ^.*$:
+    properties:
+      gpios:
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+    required:
+    - gpios
+    description: GPIO LED child node
+required:
+- compatible
+additionalProperties: true

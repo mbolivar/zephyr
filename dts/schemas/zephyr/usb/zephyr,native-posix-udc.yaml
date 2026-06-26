@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/usb/zephyr,native-posix-udc.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/usb/zephyr,native-posix-udc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Native POSIX USB device controller
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,native-posix-udc
+  maximum-speed:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Configures USB controllers to work up to a specific speed. Valid
+      arguments are "super-speed", "high-speed", "full-speed" and "low-speed". If
+      this is not passed via DT, USB controllers should use their maximum hardware
+      capability.
+    enum:
+    - low-speed
+    - full-speed
+    - high-speed
+    - super-speed
+  vbus-gpios:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Control VBUS via GPIO pin.
+required:
+- compatible
+additionalProperties: true

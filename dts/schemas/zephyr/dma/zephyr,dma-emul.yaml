@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/dma/zephyr,dma-emul.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/dma/zephyr,dma-emul.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Emulated DMA Controller
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,dma-emul
+  '#dma-cells':
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of items to expect in a DMA specifier
+  dma-buf-addr-alignment:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Memory address alignment requirement for DMA buffers used by the
+      controller.
+  dma-buf-size-alignment:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Memory size alignment requirement for DMA buffers used by the controller.
+  dma-channel-mask:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Bitmask of available DMA channels in ascending order that are
+      not reserved by firmware and are available to the
+      kernel. i.e. first channel corresponds to LSB.
+  dma-channels:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of DMA channels supported by the controller
+  dma-copy-alignment:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Minimal chunk of data possible to be copied by the controller.
+  dma-requests:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of DMA request signals supported by the controller.
+  priority:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Priority for the instance-specific work_q thread.
+  stack-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Stack size (in bytes) for the instance-specific work_q thread.
+required:
+- compatible
+- '#dma-cells'
+- stack-size
+additionalProperties: true

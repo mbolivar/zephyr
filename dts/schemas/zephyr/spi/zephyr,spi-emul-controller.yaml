@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/spi/zephyr,spi-emul-controller.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/spi/zephyr,spi-emul-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Zephyr SPI Emulation controller
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,spi-emul-controller
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 0
+  cs-gpios:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |-
+      An array of chip select GPIOs to use. Each element
+      in the array specifies a GPIO. The index in the array
+      corresponds to the child node that the CS gpio controls.
+
+      Example:
+
+        spi@... {
+                cs-gpios = <&gpio0 23 GPIO_ACTIVE_LOW>,
+                              <&gpio1 10 GPIO_ACTIVE_LOW>,
+                              ...;
+
+                spi-device@0 {
+                        reg = <0>;
+                        ...
+                };
+                spi-device@1 {
+                        reg = <1>;
+                        ...
+                };
+                ...
+        };
+
+      The child node "spi-device@0" specifies a SPI device with
+      chip select controller gpio0, pin 23, and devicetree
+      GPIO flags GPIO_ACTIVE_LOW. Similarly, "spi-device@1" has CS GPIO
+      controller gpio1, pin 10, and flags GPIO_ACTIVE_LOW. Additional
+      devices can be configured in the same way.
+
+      If unsure about the flags cell, GPIO_ACTIVE_LOW is generally a safe
+      choice for a typical "CSn" pin. GPIO_ACTIVE_HIGH may be used if
+      intervening hardware inverts the signal to the peripheral device or
+      the line itself is active high.
+
+      If this property is not defined, no chip select GPIOs are set.
+      SPI controllers with dedicated CS pins do not need to define
+      the cs-gpios property.
+  overrun-character:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      The overrun character (ORC) is used when all bytes from the TX buffer
+      are sent, but the transfer continues due to RX.
+  reg: true
+required:
+- compatible
+- '#address-cells'
+- '#size-cells'
+- reg
+additionalProperties: true
