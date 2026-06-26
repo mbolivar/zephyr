@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/cpu/arm,cortex-m3.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/cpu/arm,cortex-m3.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: ARM Cortex-M3 CPU
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: arm,cortex-m3
+  cpu-power-states:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      maxItems: 1
+    description: List of power management states supported by this cpu
+  d-cache-line-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: d-cache line size
+  enable-method:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Enable method for cpu, either it is "psci" or "spin-table"
+  i-cache-line-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: i-cache line size
+required:
+- compatible
+additionalProperties: true

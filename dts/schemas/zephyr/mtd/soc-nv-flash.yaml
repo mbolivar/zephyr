@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/mtd/soc-nv-flash.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/mtd/soc-nv-flash.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Flash node
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: soc-nv-flash
+  erase-block-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: address alignment required by flash erase operations
+  write-block-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: address alignment required by flash write operations
+required:
+- compatible
+additionalProperties: true

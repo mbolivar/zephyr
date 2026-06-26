@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/ethernet/ti,stellaris-ethernet.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/ethernet/ti,stellaris-ethernet.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: TI Stellaris Ethernet
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: ti,stellaris-ethernet
+  interrupts: true
+  local-mac-address:
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    description: Specifies the MAC address that was assigned to the network device
+  nvmem-cell-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Names for each nvmem-cells specified.
+  nvmem-cells:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: List of phandles to the nvmem data cells.
+  phy-connection-type:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Specifies the interface connection type between ethernet MAC and
+      PHY.
+    enum:
+    - mii
+    - rmii
+    - gmii
+    - rgmii
+    - internal
+  phy-handle:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Specifies a reference to a node representing a PHY device.
+  ptp-clock:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Corresponding ptp clock device.
+  reg: true
+  zephyr,mac-address-prefix:
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    description: |-
+      A statically assigned MAC address prefix.
+      Can be combined with zephyr,random-mac-address or an NVMEM cell, for
+      example to set the OUI.
+  zephyr,random-mac-address:
+    type: boolean
+    description: |-
+      Use a random MAC address generated when the driver is initialized.
+      Note that using this choice and rebooting a board may leave stale
+      MAC address in peers' ARP caches and lead to issues and delays in
+      communication.  (Use "ip neigh flush all" on Linux peers to clear
+      ARP cache.)
+
+      It is driver specific how the OUI octets are handled.
+
+      If set we ignore any setting of the local-mac-address property.
+required:
+- compatible
+- interrupts
+- reg
+additionalProperties: true

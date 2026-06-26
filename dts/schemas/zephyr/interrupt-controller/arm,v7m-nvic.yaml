@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/interrupt-controller/arm,v7m-nvic.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/interrupt-controller/arm,v7m-nvic.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: ARMv7-M NVIC (Nested Vectored Interrupt Controller)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: arm,v7m-nvic
+  '#interrupt-cells':
+    description: Number of items to expect in an interrupt specifier
+    const: 2
+  arm,num-irq-priority-bits:
+    description: number of bits of IRQ priorities
+  interrupt-controller: true
+  reg: true
+required:
+- compatible
+- '#interrupt-cells'
+- arm,num-irq-priority-bits
+- interrupt-controller
+- reg
+additionalProperties: true
