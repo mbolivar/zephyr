@@ -52,7 +52,9 @@ def main():
                          infer_binding_for_paths=["/zephyr,user", "/cpus"],
                          werror=args.edtlib_Werror,
                          vendor_prefixes=vendor_prefixes,
-                         warn_bus_mismatch=args.warn_bus_mismatch)
+                         warn_bus_mismatch=args.warn_bus_mismatch,
+                         dtschema_dirs=args.dtschema_dirs,
+                         no_classic_bindings=args.no_classic_bindings)
     except edtlib.EDTError as e:
         sys.exit(f"devicetree error: {e}")
 
@@ -92,6 +94,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--warn-bus-mismatch", action="store_true",
                         help="warn when devicetree nodes are on buses that "
                              "don't match available binding expectations")
+    parser.add_argument("--dtschema-dirs", nargs='+', default=[],
+                        help="directory with dt-schema based bindings; "
+                             "we allow multiple")
+    parser.add_argument("--no-classic-bindings", action="store_true",
+                        help="if set, --bindings-dirs is ignored and only "
+                             "dt-schema based bindings are used")
 
     return parser.parse_args()
 

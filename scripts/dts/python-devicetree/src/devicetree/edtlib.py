@@ -2304,7 +2304,9 @@ class EDT:
                  infer_binding_for_paths: Optional[Iterable[str]] = None,
                  vendor_prefixes: Optional[dict[str, str]] = None,
                  werror: bool = False,
-                 warn_bus_mismatch: bool = False):
+                 warn_bus_mismatch: bool = False,
+                 dtschema_dirs: Optional[list[str]] = None,
+                 no_classic_bindings: bool = False):
         """EDT constructor.
 
         dts:
@@ -2352,6 +2354,21 @@ class EDT:
         warn_bus_mismatch (default: False):
           If True, a warning is logged if a node's actual bus does not match
             the bus specified in its binding.
+
+        dtschema_dirs (default: None):
+          List of paths to directories containing dt-schema based bindings.
+          These directories are recursively searched for .yaml schema files,
+          which may match nodes by compatible just like classic bindings do.
+          When a compatible is matched by both a dt-schema binding and a
+          classic binding, the dt-schema binding is used. Requires the
+          'dtschema' Python package. See dtschema_bindings.py.
+
+        no_classic_bindings (default: False):
+          If True, 'bindings_dirs' is ignored and only dt-schema based
+          bindings (and inferred bindings) are used. This is mainly useful
+          for validating that a configuration is fully described by
+          dt-schema bindings. ("Classic bindings" is the YAML bindings
+          language Zephyr has always used, under dts/bindings/.)
         """
         # All instance attributes should be initialized here.
         # This makes it easy to keep track of them, which makes
@@ -2370,6 +2387,7 @@ class EDT:
         self.dep_ord2node: dict[int, Node] = {}
         self.dts_path: str = dts # type: ignore
         self.bindings_dirs: list[str] = list(bindings_dirs)
+        self.dtschema_dirs: list[str] = list(dtschema_dirs or [])
 
         # Saved kwarg values for internal use
         self._warn_reg_unit_address_mismatch: bool = warn_reg_unit_address_mismatch
@@ -2379,11 +2397,13 @@ class EDT:
         self._vendor_prefixes: dict[str, str] = vendor_prefixes or {}
         self._werror: bool = bool(werror)
         self._warn_bus_mismatch: bool = warn_bus_mismatch
+        self._no_classic_bindings: bool = no_classic_bindings
 
         # Other internal state
         self._compat2binding: dict[tuple[str, Optional[str]], Binding] = {}
         self._graph: Graph = Graph()
-        self._binding_paths: list[str] = _binding_paths(self.bindings_dirs)
+        self._binding_paths: list[str] = (
+            [] if no_classic_bindings else _binding_paths(self.bindings_dirs))
         self._binding_fname2path: dict[str, str] = {
             os.path.basename(path): path
             for path in self._binding_paths
@@ -2468,7 +2488,9 @@ class EDT:
             support_fixed_partitions_on_any_bus=self._fixed_partitions_no_bus,
             infer_binding_for_paths=set(self._infer_binding_for_paths),
             vendor_prefixes=dict(self._vendor_prefixes),
-            werror=self._werror
+            werror=self._werror,
+            dtschema_dirs=list(self.dtschema_dirs),
+            no_classic_bindings=self._no_classic_bindings
         )
         ret.dts_path = self.dts_path
         ret._dt = deepcopy(self._dt, memo)
@@ -2585,6 +2607,22 @@ class EDT:
         # are loaded.
 
         dt_compats = _dt_compats(self._dt)
+
+        # dt-schema based bindings are registered first; when both a
+        # dt-schema binding and a classic binding match a compatible,
+        # the dt-schema binding wins (see _binding()).
+        if self.dtschema_dirs:
+            from devicetree import dtschema_bindings
+            loader = dtschema_bindings.DtSchemaBindings(self.dtschema_dirs)
+            for binding in loader.bindings_for(dt_compats):
+                while binding is not None:
+                    if binding.compatible:
+                        self._register_binding(binding)
+                    binding = binding.child_binding
+
+        if not self._binding_paths:
+            return
+
         # Searches for any 'compatible' string mentioned in the devicetree
         # files, with a regex
         dt_compats_search = re.compile(
@@ -2644,6 +2682,14 @@ class EDT:
 
         if compatible not in dt_compats:
             # Not a compatible we care about.
+            return None
+
+        if (compatible, raw.get("on-bus")) in self._compat2binding:
+            # Already handled by a dt-schema based binding, which takes
+            # precedence over the classic language during the migration.
+            _LOG.debug(
+                "ignoring classic binding %s: compatible '%s' is handled "
+                "by a dt-schema binding", binding_path, compatible)
             return None
 
         # Initialize and return the Binding object.
