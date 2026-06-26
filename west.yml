@@ -136,6 +136,17 @@ manifest:
     - name: dhara
       revision: 6f163ca05e174b168b4d148160b50eeaeeb561fc
       path: modules/lib/dhara
+    - name: dt-schema
+      # devicetree.org's dt-schema tooling and core schemas, used by
+      # the dt-schema based devicetree bindings support. RFC note:
+      # this should become a zephyrproject-rtos fork carrying a
+      # 'zephyr' branch (currently: two bug fixes pending upstream)
+      # once the project signs off on the approach.
+      url: https://github.com/devicetree-org/dt-schema
+      revision: a30b9ade5e635e0a1ba75175e431e9e1ec33b059
+      path: dt-schema
+      groups:
+        - optional
     - name: edtt
       revision: c282625e694f0b53ea53e13231ea6d2f49411768
       path: tools/edtt

@@ -1283,6 +1283,7 @@ Devicetree Bindings:
     - ^dts/bindings/.*zephyr.*
   files:
     - dts/bindings/
+    - dts/schemas/
     - include/zephyr/dt-bindings/
     - scripts/bindings_properties_allowlist.yaml
   labels:

@@ -26,6 +26,7 @@ development.
    intro.rst
    design.rst
    bindings.rst
+   dt-schema-bindings.rst
    api-usage.rst
    phandles.rst
    zephyr-user-node.rst

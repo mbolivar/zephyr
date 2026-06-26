@@ -29,3 +29,15 @@ PyGithub
 
 # used to generate devicetree dependency graphs
 graphviz
+
+# used by the dt-schema based devicetree bindings support
+# (scripts/dts/python-devicetree, dts/schemas); see
+# doc/build/dts/dt-schema-bindings.rst.
+#
+# For reproducible builds use the pinned 'dt-schema' west module (see
+# west.yml) as the source of truth: it carries both the tooling and the
+# core schemas at a fixed revision. This unpinned entry is a convenience
+# for non-west setups; because dtschema's translation of some property
+# types evolves between releases, the version installed here should match
+# the pinned module (otherwise check_schema_parity may report drift).
+dtschema
