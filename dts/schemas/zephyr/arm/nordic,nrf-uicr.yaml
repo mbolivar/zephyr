@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/arm/nordic,nrf-uicr.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/arm/nordic,nrf-uicr.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic UICR (User Information Configuration Registers)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-uicr
+  gpio-as-nreset:
+    type: boolean
+    description: |-
+      When enabled, this property will configure the reset GPIO as nRESET.
+
+      nRESET pin in nRF52805/52810/52811/52832 series: P0.21
+      nRESET pin in nRF52820/52833/52840 series: P0.18
+
+      This setting, once applied, can only be unset by erasing the UICR
+      registers. Refer to the reference manual for more details.
+  nfct-pins-as-gpios:
+    type: boolean
+    description: |-
+      When enabled this property will configure pins dedicated to NFCT
+      peripheral as regular GPIOs.
+
+      NFC pins in nRF52 series: P0.09 and P0.10
+      NFC pins in nRF5340: P0.02 and P0.03
+
+      This setting, once applied, can only be unset by erasing the UICR
+      registers. Refer to the reference manual for more details.
+  reg: true
+required:
+- compatible
+- reg
+additionalProperties: true

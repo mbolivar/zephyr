@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/crypto/arm,cryptocell-310.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/crypto/arm,cryptocell-310.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: ARM TrustZone CryptoCell 310
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: arm,cryptocell-310
+  interrupts: true
+  reg: true
+required:
+- compatible
+- interrupts
+- reg
+additionalProperties: true

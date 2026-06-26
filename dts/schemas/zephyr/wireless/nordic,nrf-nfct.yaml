@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/net/wireless/nordic,nrf-nfct.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/wireless/nordic,nrf-nfct.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF family NFCT (Near Field Communication Tag)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-nfct
+  interrupts: true
+  reg: true
+required:
+- compatible
+- interrupts
+- reg
+additionalProperties: true

@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/bluetooth/zephyr,bt-hci-ll-sw-split.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/bluetooth/zephyr,bt-hci-ll-sw-split.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Bluetooth HCI provided by the native Zephyr Bluetooth Controller
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,bt-hci-ll-sw-split
+  bt-hci-bus:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Bus of the transport
+    enum:
+    - virtual
+    - usb
+    - pccard
+    - uart
+    - rs232
+    - pci
+    - sdio
+    - spi
+    - i2c
+    - smd
+    - virtio
+    - ipc
+    default: virtual
+  bt-hci-name:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Name of the HCI transport
+    default: Controller
+  bt-hci-quirks:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: HCI device quirks
+    enum:
+    - no-reset
+    - no-auto-dle
+    default:
+    - no-auto-dle
+  bt-hci-vs-ext:
+    type: boolean
+    description: Zephyr HCI vendor extensions are supported
+required:
+- compatible
+additionalProperties: true

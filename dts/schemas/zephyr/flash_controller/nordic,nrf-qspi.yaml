@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/flash_controller/nordic,nrf-qspi.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/flash_controller/nordic,nrf-qspi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Properties defining the interface for the Nordic QSPI peripheral.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Properties defining the interface for the Nordic QSPI peripheral.
+
+  The reg property describes two register blocks: one for the memory
+  corresponding to the QSPI peripheral registers, and another for
+  the memory mapped XIP area:
+
+      qspi: qspi@2b000 {
+              compatible = "nordic,nrf-qspi";
+              reg = <0x2b000 0x1000>, <0x10000000 0x10000000>;
+              reg-names = "qspi", "qspi_mm";
+              ...
+      };
+
+  Above, the register block with base address 0x2b000 and name
+  "qspi" are the QSPI peripheral registers. The register block with
+  base address 0x10000000 and name "qspi_mm" is the XIP area.
+properties:
+  compatible:
+    const: nordic,nrf-qspi
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 0
+  interrupts: true
+  pinctrl-0: true
+  pinctrl-names: true
+  reg: true
+required:
+- compatible
+- '#address-cells'
+- '#size-cells'
+- interrupts
+- pinctrl-0
+- pinctrl-names
+- reg
+additionalProperties: true

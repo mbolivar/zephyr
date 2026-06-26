@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/flash_controller/nordic,nrf52-flash-controller.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/flash_controller/nordic,nrf52-flash-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic NVMC (Non-Volatile Memory Controller)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf52-flash-controller
+  partial-erase:
+    type: boolean
+    description: If set, indicates that the NVMC supports partial erase of flash pages.
+  reg: true
+required:
+- compatible
+- reg
+additionalProperties: true

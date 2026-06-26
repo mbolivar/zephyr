@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/sensor/nordic,nrf-temp.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/sensor/nordic,nrf-temp.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF family TEMP node
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-temp
+  friendly-name:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Human readable string describing the sensor. It can be used to
+      distinguish multiple instances of the same model (e.g., lid accelerometer
+      vs. base accelerometer in a laptop) to a host operating system.
+
+      This property is defined in the Generic Sensor Property Usages of the HID
+      Usage Tables specification
+      (https://usb.org/sites/default/files/hut1_3_0.pdf, section 22.5).
+  interrupts: true
+  reg: true
+required:
+- compatible
+- interrupts
+- reg
+additionalProperties: true

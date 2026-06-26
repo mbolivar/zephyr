@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/pwm/nordic,nrf-pwm.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/pwm/nordic,nrf-pwm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: nRF PWM
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-pwm
+  '#pwm-cells':
+    description: Number of items to expect in a pwm specifier
+    const: 3
+  center-aligned:
+    type: boolean
+    description: Set this to use center-aligned (up and down) counter mode.
+  channels:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of PWM channels supported by the controller.
+  idleout-supported:
+    type: boolean
+    description: Indicates if the PWM instance has the IDLEOUT register.
+  pinctrl-0: true
+  pinctrl-names: true
+  reg: true
+required:
+- compatible
+- '#pwm-cells'
+- pinctrl-0
+- pinctrl-names
+- reg
+additionalProperties: true

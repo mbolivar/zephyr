@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/retention/zephyr,retention.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/retention/zephyr,retention.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Retention subsystem area, which has a retained memory parent.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,retention
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 1
+  checksum:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      An optional data verification checksum, which indicates that the data is
+      valid (appended to the footer of the data, reduces the available user
+      data size). Value is size in bytes (0 for none, 1 for 8-bit CRC, 2 for
+      16-bit CRC, 4 for 32-bit CRC). Default is to not use a checksum.
+    default: 0
+  prefix:
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    description: |-
+      An optional magic prefix, which indicates that the data has been set
+      (applies to the header of the data, reduces the available user data
+      size).
+  reg: true
+required:
+- compatible
+- reg
+additionalProperties: true

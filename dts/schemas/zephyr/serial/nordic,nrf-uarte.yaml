@@ -1,0 +1,111 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/serial/nordic,nrf-uarte.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/serial/nordic,nrf-uarte.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF family UARTE (UART with EasyDMA)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-uarte
+  cross-domain-pins-supported:
+    type: boolean
+    description: UARTE allows usage of cross domain pins with constant latency mode
+      required.
+  current-speed:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Initial baud rate setting for UART. Only a fixed set of baud
+      rates are selectable on these devices.
+    enum:
+    - 1200
+    - 2400
+    - 4800
+    - 9600
+    - 14400
+    - 19200
+    - 28800
+    - 31250
+    - 38400
+    - 56000
+    - 57600
+    - 76800
+    - 115200
+    - 230400
+    - 250000
+    - 460800
+    - 921600
+    - 1000000
+    - 2000000
+    - 4000000
+    - 8000000
+  data-bits:
+    description: Sets the number of data bits.
+    enum:
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+  default-gpio-port:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: UARTE default GPIO port.
+  disable-rx:
+    type: boolean
+    description: |-
+      Disable UART reception capabilities (only required to disable reception
+      if CONFIG_PINCTRL is enabled).
+  endtx-stoptx-supported:
+    type: boolean
+    description: UARTE has ENDTX_STOPTX HW short.
+  frame-timeout-supported:
+    type: boolean
+    description: UARTE has RX frame timeout HW feature.
+  hw-flow-control:
+    type: boolean
+    description: Set to enable RTS/CTS flow control at boot time
+  interrupts: true
+  nordic,clockpin-enable:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: List of signals that require CLOCKPIN setting enablement.
+  parity:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Configures the parity of the adapter. Enumeration id 0 for none, 1 for odd
+      and 2 for even parity, 3 for mark parity and 4 for space parity.
+      Default to none if not specified.
+    enum:
+    - none
+    - odd
+    - even
+    - mark
+    - space
+    default: none
+  pinctrl-0: true
+  pinctrl-names: true
+  reg: true
+  stop-bits:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Sets the number of stop bits.
+    enum:
+    - '0_5'
+    - '1'
+    - '1_5'
+    - '2'
+  timer:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: |-
+      Timer instance used to count received bytes. Due to issues with frame timeout
+      feature it is required to reliably receive data in cases where flow control
+      is not used and new byte can appear on the line when frame timeout expires
+      but before it is handled.
+required:
+- compatible
+- current-speed
+- interrupts
+- pinctrl-0
+- pinctrl-names
+- reg
+additionalProperties: true

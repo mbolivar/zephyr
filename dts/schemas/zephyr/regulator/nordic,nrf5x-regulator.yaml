@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/regulator/nordic,nrf5x-regulator.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/regulator/nordic,nrf5x-regulator.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF5X regulator (fixed stage of the core supply)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf5x-regulator
+  reg: true
+  regulator-initial-mode:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Initial operating mode. The set of possible operating modes depends on the
+      capabilities of every hardware so each device binding documentation
+      explains which values the regulator supports.
+  regulator-name:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: A string used as a descriptive name for regulator outputs
+required:
+- compatible
+- reg
+- regulator-initial-mode
+- regulator-name
+additionalProperties: true

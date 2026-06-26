@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/audio/nordic,nrf-pdm.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/audio/nordic,nrf-pdm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic PDM (Pulse Density Modulation interface)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-pdm
+  clock-source:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Clock source to be used by the PDM peripheral. The following options
+      are available:
+      - "PCLK32M": 32 MHz peripheral clock, synchronous to HFCLK
+      - "PCLK32M_HFXO": PCLK32M running off the 32 MHz crystal oscillator
+        (HFXO) for better clock accuracy and jitter performance
+      - "ACLK": Audio PLL clock with configurable frequency (frequency for
+        this clock must be set via the "hfclkaudio-frequency" property
+        in the "nordic,nrf-clock" node); this clock source requires the use of HFXO
+    enum:
+    - PCLK32M
+    - PCLK32M_HFXO
+    - ACLK
+    default: PCLK32M_HFXO
+  interrupts: true
+  nordic,clockpin-enable:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: List of signals that require CLOCKPIN setting enablement.
+  pinctrl-0: true
+  pinctrl-names: true
+  queue-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Size of the queue of received audio data blocks to be used
+      by the driver.
+    default: 4
+  reg: true
+required:
+- compatible
+- interrupts
+- pinctrl-0
+- pinctrl-names
+- reg
+additionalProperties: true

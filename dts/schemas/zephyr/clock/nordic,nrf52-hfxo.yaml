@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/clock/nordic,nrf52-hfxo.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/clock/nordic,nrf52-hfxo.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF high-frequency crystal oscillator (nRF52 series)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf52-hfxo
+  '#clock-cells':
+    description: Number of items to expect in a Clock specifier
+    const: 0
+  clock-frequency:
+    const: 64000000
+  startup-time-us:
+    description: |-
+      Startup time in microseconds.
+
+      The value can be obtained by first measuring the time between
+      TASKS_HFCLKSTART and EVENTS_HFCLKSTARTED. Then multiply
+      the value by 2 to account for temperature and supply variations.
+
+      Note that the startup time will be longer usual on the first
+      power-up and as such should not be used to determine
+      startup-time-us.
+required:
+- compatible
+- '#clock-cells'
+- clock-frequency
+additionalProperties: true

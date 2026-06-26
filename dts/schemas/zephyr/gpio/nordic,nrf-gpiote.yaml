@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/gpio/nordic,nrf-gpiote.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/gpio/nordic,nrf-gpiote.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: NRF5 GPIOTE
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-gpiote
+  child-owned-channels:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: |-
+      List of channels in a split-ownership peripheral that are officially
+      owned by the compiled CPU but intended to be used by its child
+      subprocessor(s).
+  fixed-channels-supported:
+    type: boolean
+    description: |-
+      Indicates that the GPIOTE instance has fixed connection between pins and TE channels.
+      It means that a specific TE channel must be used for a given pin.
+  instance:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      The GPIOTE instance number. GPIOTE instance GPIOTE0 has:
+
+        instance = <0>;
+
+      And GPIOTE1 has:
+
+        instance = <1>;
+  interrupts: true
+  no-port-event:
+    type: boolean
+    description: Indicates that the GPIOTE instance does not support PORT event.
+  nonsecure-channels:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: |-
+      List of channels in a split-ownership, split-security peripheral that
+      are to be configured as nonsecure. In Trustzone systems, this property
+      is only evaluated for secure peripherals, as nonsecure channels are
+      implicitly specified through the owned-channels property. This property
+      is ignored in non-Trustzone systems.
+  owned-channels:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: |-
+      List of channels in a split-ownership peripheral that are to be owned
+      for use by the compiled CPU.
+  reg: true
+required:
+- compatible
+- instance
+- interrupts
+- reg
+additionalProperties: true

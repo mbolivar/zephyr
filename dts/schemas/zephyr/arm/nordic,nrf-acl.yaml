@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/arm/nordic,nrf-acl.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/arm/nordic,nrf-acl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF family ACL (Access Control List)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-acl
+  reg: true
+required:
+- compatible
+- reg
+additionalProperties: true

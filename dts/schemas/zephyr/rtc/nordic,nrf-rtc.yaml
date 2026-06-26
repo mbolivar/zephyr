@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/rtc/nordic,nrf-rtc.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/rtc/nordic,nrf-rtc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF RTC (Real-Time Counter)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-rtc
+  cc-num:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Number of compare (CC) registers available.
+
+      On nRF53 these registers can also be used for capture.
+  fixed-top:
+    type: boolean
+    description: Enable fixed top value
+  interrupts: true
+  ppi-wrap:
+    type: boolean
+    description: Enable wrapping with PPI
+  prescaler:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: RTC frequency equals clock-frequency divided by the prescaler value
+  reg: true
+  zli:
+    type: boolean
+    description: Enable event handler in the ZLI (Zero latency interrupt) context
+required:
+- compatible
+- cc-num
+- interrupts
+- reg
+additionalProperties: true

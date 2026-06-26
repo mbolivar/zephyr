@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/bluetooth/zephyr,bt-hci-entropy.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/bluetooth/zephyr,bt-hci-entropy.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Bluetooth module that uses Zephyr's Bluetooth Host Controller Interface as
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Bluetooth module that uses Zephyr's Bluetooth Host Controller Interface as
+  an entropy source
+properties:
+  compatible:
+    const: zephyr,bt-hci-entropy
+required:
+- compatible
+additionalProperties: true

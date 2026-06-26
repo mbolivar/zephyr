@@ -7,6 +7,42 @@ compatibles:
     interrupt-cells:
     - irq
     - priority
+  nordic,nrf-ficr:
+    nordic,ficr-cells:
+    - offset
+  nordic,nrf-gpio:
+    gpio-cells:
+    - pin
+    - flags
+  nordic,nrf-i2s:
+    bus: i2s
+  nordic,nrf-pwm:
+    pwm-cells:
+    - channel
+    - period
+    - flags
+  nordic,nrf-qspi:
+    bus: qspi
+  nordic,nrf-saadc:
+    io-channel-cells:
+    - input
+  nordic,nrf-spi:
+    bus: spi
+  nordic,nrf-spim:
+    bus: spi
+  nordic,nrf-sw-pwm:
+    pwm-cells:
+    - channel
+    - period
+    - flags
+  nordic,nrf-twi:
+    bus: i2c
+  nordic,nrf-uarte:
+    bus: uart
+  nordic,nrf-usbd:
+    bus: usb
+  nordic,qspi-nor:
+    on-bus: qspi
   ti,stellaris-gpio:
     gpio-cells:
     - pin

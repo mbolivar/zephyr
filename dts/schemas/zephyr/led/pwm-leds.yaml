@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/led/pwm-leds.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/led/pwm-leds.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Group of PWM-controlled LEDs.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Group of PWM-controlled LEDs.
+
+  Each LED is defined in a child node of the pwm-leds node.
+properties:
+  compatible:
+    const: pwm-leds
+patternProperties:
+  ^.*$:
+    properties:
+      pwms:
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+        description: |-
+          Reference to a PWM instance.
+
+          The period field is used by the set_brightness function of the LED API.
+          Its value should at least be greater that 100 nanoseconds (for a full
+          brigtness granularity) and lesser than 50 milliseconds (average visual
+          persistence time of the human eye). Typical values for the PWM period
+          are 10 or 20 milliseconds.
+    required:
+    - pwms
+    description: PWM LED child node
+required:
+- compatible
+additionalProperties: true

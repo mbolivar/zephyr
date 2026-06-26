@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/counter/nordic,nrf-timer.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/counter/nordic,nrf-timer.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF timer node
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-timer
+  cc-num:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of capture/compare (CC) registers available
+  interrupts: true
+  max-bit-width:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Maximum bit width supported
+  prescaler:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Prescaler value determines frequency (base_frequency/2^prescaler)
+  reg: true
+  zli:
+    type: boolean
+    description: Enable event handler in the ZLI (Zero latency interrupt) context
+required:
+- compatible
+- cc-num
+- interrupts
+- max-bit-width
+- prescaler
+- reg
+additionalProperties: true

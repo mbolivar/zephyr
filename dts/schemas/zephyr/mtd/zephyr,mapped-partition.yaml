@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/mtd/zephyr,mapped-partition.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/mtd/zephyr,mapped-partition.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Memory-mapped partition of a flash (or other non-volatile storage) memory.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Memory-mapped partition of a flash (or other non-volatile storage) memory.
+
+  The `zephyr,mapped-partition` node should be (descendant) children of the NVM memory node, either
+  directly or through intermediatory grouping child nodes or through parent
+  `zephyr,mapped-partition` nodes. Note that the NVM memory node and NVM controller nodes must have
+  `ranges` properties to indicate that they are all part of the SoC's address space which specify
+  the full range of the NVM area (usually the same as the `reg` property with a 0x0 prepended
+  before the offset value). Nested `zephyr,mapped-partition` nodes are supported, and should have
+  `ranges` properties set to indicate their range to their child nodes.
+properties:
+  compatible:
+    const: zephyr,mapped-partition
+  read-only:
+    type: boolean
+    description: Set this property if the partition is read-only
+  reg: true
+required:
+- compatible
+- reg
+additionalProperties: true

@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/adc/arduino,uno-adc.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/adc/arduino,uno-adc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: ADC channels exposed on Arduino Uno (R3) headers.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  ADC channels exposed on Arduino Uno (R3) headers.
+
+  The Arduino Uno layout provides a 6-pin Analog Input header.  This
+  has analog input signals labeled from A0 at the top through A5 at
+  the bottom.
+
+  This binding provides a nexus mapping for these pins where parent
+  pins 0 through 5 correspond to A0 through A5.
+properties:
+  compatible:
+    const: arduino,uno-adc
+  '#io-channel-cells':
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of items to expect in the io-channel specifier, such as ADC
+      channels.
+  io-channel-map: true
+  io-channel-map-mask:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+  io-channel-map-pass-thru:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+required:
+- compatible
+- '#io-channel-cells'
+- io-channel-map
+additionalProperties: true

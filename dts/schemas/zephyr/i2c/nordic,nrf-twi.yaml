@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/i2c/nordic,nrf-twi.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/i2c/nordic,nrf-twi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF family TWI (TWI master).
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Nordic nRF family TWI (TWI master).
+
+  This binding can be used for nodes which can represent TWI
+  peripherals. When a single SoC peripheral ID corresponds to multiple
+  I2C peripherals (like TWI or TWIM), the corresponding devicetree
+  nodes must be set up to select TWI before use.
+
+  To select TWI, set the node's "compatible" to "nordic,nrf-twi" and
+  its "status" to "okay", e.g. using an overlay file like this:
+
+      /* This is for TWI0 -- change to "i2c1" for TWI1. */
+      &i2c0 {
+              compatible = "nordic,nrf-twi";
+              status = "okay";
+              /* other property settings can go here */
+      };
+
+  You can use either of these options to check TWI availability on
+  your SoC:
+
+      1. Check the peripheral Instantiation table in the Memory
+         section of your SoC's Product Specification document.
+         A "TWI0" instance in the table means "i2c0" in the devicetree
+         can be used with this binding, and similarly for "TWI1".
+
+      2. Open your SoC's .dtsi file and look for a node definition that
+         documents TWI support, like this:
+
+             i2c0: i2c@40003000 {
+                     /*
+                      * This i2c node can be TWI, [...].
+                      */
+                     ...
+             };
+
+   If your SoC only has TWIM and TWIS I2C peripherals, you cannot use
+   this binding. See the "nordic,nrf-twim" binding instead.
+allOf:
+  # Reuse the dt-schema project's standard I2C controller schema: it
+  # constrains clock-frequency to a sane range and every child's reg
+  # (its I2C address) to a valid 7-/10-bit address -- validation the
+  # classic bindings language cannot express. Resolved from the dtschema
+  # package; nothing is copied into the Zephyr tree.
+  - $ref: http://devicetree.org/schemas/i2c/i2c-controller.yaml#
+properties:
+  compatible:
+    const: nordic,nrf-twi
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 0
+  clock-tolerance-percent:
+    description: |-
+      This property is used to correct for clock inaccuracy to ensure that SCL
+      frequency does not exceed the value specified in "clock-frequency".
+  cq-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Size of the completion queue for blocking requests
+    default: 4
+  easydma-maxcnt-bits:
+    description: |-
+      Maximum number of bits available in the EasyDMA MAXCNT register. This
+      property must be set at SoC level DTS files.
+  interrupts: true
+  nordic,clockpin-enable:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: List of signals that require CLOCKPIN setting enablement.
+  pinctrl-0: true
+  pinctrl-names: true
+  reg: true
+  sq-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Size of the submission queue for blocking requests
+    default: 4
+required:
+- compatible
+- '#address-cells'
+- '#size-cells'
+- easydma-maxcnt-bits
+- interrupts
+- pinctrl-0
+- pinctrl-names
+- reg
+additionalProperties: true

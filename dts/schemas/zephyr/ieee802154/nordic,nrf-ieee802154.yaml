@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/ieee802154/nordic,nrf-ieee802154.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/ieee802154/nordic,nrf-ieee802154.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF IEEE 802.15.4 node
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-ieee802154
+required:
+- compatible
+additionalProperties: true

@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/comparator/nordic,nrf-comp.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/comparator/nordic,nrf-comp.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF COMP (analog COMParator)
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Nordic nRF COMP (analog COMParator)
+
+  This comparator has varying configurations which require varying properties be set in the
+  devicetree. Enabling the comparator node requires setting the default configuration of the
+  comparator.
+properties:
+  compatible:
+    const: nordic,nrf-comp
+  enable-hyst:
+    type: boolean
+  extrefsel:
+    $ref: /schemas/types.yaml#/definitions/uint32
+  isource:
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+    - DISABLED
+    - 2UA5
+    - 5UA
+    - 10UA
+  main-mode:
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+    - SE
+    - DIFF
+  psel:
+    $ref: /schemas/types.yaml#/definitions/uint32
+  refsel:
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+    - INT_1V2
+    - INT_1V8
+    - INT_2V4
+    - AVDDAO1V8
+    - VDD
+    - AREF
+  sp-mode:
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+    - LOW
+    - NORMAL
+    - HIGH
+  th-down:
+    $ref: /schemas/types.yaml#/definitions/uint32
+  th-up:
+    $ref: /schemas/types.yaml#/definitions/uint32
+required:
+- compatible
+additionalProperties: true

@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/sensor/nordic,nrf-qdec.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/sensor/nordic,nrf-qdec.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Nordic nRF quadrature decoder (QDEC) node
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: nordic,nrf-qdec
+  enable-pin:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      The enable pin to use, to enable a connected QDEC device
+
+      For pins P0.0 through P0.31, use the pin number. For example,
+      to use P0.16 for the A pin, set:
+
+          enable-pin = <16>;
+
+      For pins P1.0 through P1.31, add 32 to the pin number. For
+      example, to use P1.2 for the A pin, set:
+
+          enable-pin = <34>;  /* 32 + 2 */
+  friendly-name:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Human readable string describing the sensor. It can be used to
+      distinguish multiple instances of the same model (e.g., lid accelerometer
+      vs. base accelerometer in a laptop) to a host operating system.
+
+      This property is defined in the Generic Sensor Property Usages of the HID
+      Usage Tables specification
+      (https://usb.org/sites/default/files/hut1_3_0.pdf, section 22.5).
+  interrupts: true
+  led-pre:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Time LED is enabled prior to sampling event (in us)
+  nordic,period:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      The sampling period of the QDEC device. The default value is SAMPLEPER_2048US, which
+      reflects the previously hardcoded configuration.
+    enum:
+    - SAMPLEPER_128US
+    - SAMPLEPER_256US
+    - SAMPLEPER_512US
+    - SAMPLEPER_1024US
+    - SAMPLEPER_2048US
+    - SAMPLEPER_4096US
+    - SAMPLEPER_8192US
+    - SAMPLEPER_16384US
+    default: SAMPLEPER_2048US
+  pinctrl-0: true
+  pinctrl-names: true
+  reg: true
+  steps:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of steps on the rotating wheel
+required:
+- compatible
+- interrupts
+- led-pre
+- pinctrl-0
+- pinctrl-names
+- reg
+- steps
+additionalProperties: true
