@@ -44,6 +44,47 @@ def binding_paths(bindings_dirs):
                     yield os.path.join(root, filename)
 
 
+def dtschema_compatibles(schema_path):
+    # Yields the compatible strings documented by the dt-schema file
+    # at 'schema_path'. These appear as 'const:' or 'enum:' constraints
+    # on the 'compatible' property, possibly nested inside 'items:' or
+    # 'oneOf:'/'anyOf:' lists.
+
+    with open(schema_path, encoding="utf-8") as f:
+        try:
+            schema = yaml.load(f, Loader=SafeLoader)
+        except yaml.YAMLError as e:
+            print(
+                f"WARNING: '{schema_path}' appears in dt-schema "
+                f"directories but isn't valid YAML: {e}"
+            )
+            return
+
+    if not isinstance(schema, dict) or '$schema' not in schema:
+        # Not a dt-schema document (e.g. zephyr-extras.yaml).
+        return
+
+    def walk(sub):
+        if not isinstance(sub, dict):
+            return
+        if isinstance(sub.get('const'), str):
+            yield sub['const']
+        for value in sub.get('enum') or []:
+            if isinstance(value, str):
+                yield value
+        for key in ('items', 'oneOf', 'anyOf', 'allOf'):
+            inner = sub.get(key)
+            if isinstance(inner, dict):
+                yield from walk(inner)
+            elif isinstance(inner, list):
+                for item in inner:
+                    yield from walk(item)
+
+    properties = schema.get('properties')
+    if isinstance(properties, dict):
+        yield from walk(properties.get('compatible'))
+
+
 def parse_args():
     # Returns parsed command-line arguments
 
@@ -52,8 +93,14 @@ def parse_args():
     parser.add_argument(
         "--bindings-dirs",
         nargs='+',
-        required=True,
+        default=[],
         help="directory with bindings in YAML format, we allow multiple",
+    )
+    parser.add_argument(
+        "--dtschema-dirs",
+        nargs='+',
+        default=[],
+        help="directory with dt-schema based bindings, we allow multiple",
     )
 
     return parser.parse_args()
@@ -83,6 +130,9 @@ def main():
             if key.value == "compatible" and isinstance(node, yaml.ScalarNode):
                 compats.add(node.value)
                 break
+
+    for schema_path in binding_paths(args.dtschema_dirs):
+        compats.update(dtschema_compatibles(schema_path))
 
     with open(args.kconfig_out, "w", encoding="utf-8") as kconfig_file:
         print(HEADER, file=kconfig_file)

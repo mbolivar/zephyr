@@ -218,6 +218,7 @@ function(dts_configuration_files)
   endforeach()
 
   unset(DTS_ROOT_BINDINGS)
+  unset(DTS_ROOT_SCHEMAS)
   foreach(dts_root ${DTS_ROOT})
     set(bindings_path ${dts_root}/dts/bindings)
     if(EXISTS ${bindings_path})
@@ -227,18 +228,30 @@ function(dts_configuration_files)
       )
     endif()
 
+    set(schemas_path ${dts_root}/dts/schemas)
+    if(EXISTS ${schemas_path} AND NOT DTS_NO_DTSCHEMA_BINDINGS)
+      list(APPEND
+        DTS_ROOT_SCHEMAS
+        ${schemas_path}
+      )
+    endif()
+
     set(vendor_prefixes ${dts_root}/${VENDOR_PREFIXES})
     if(EXISTS ${vendor_prefixes})
       list(APPEND EXTRA_GEN_EDT_ARGS --vendor-prefixes ${vendor_prefixes})
     endif()
 
     set(DTS_ROOT_BINDINGS ${DTS_ROOT_BINDINGS} PARENT_SCOPE)
+    set(DTS_ROOT_SCHEMAS ${DTS_ROOT_SCHEMAS} PARENT_SCOPE)
   endforeach()
 
   # Cache the location of the root bindings so they can be used by
   # scripts which use the build directory.
   set(CACHED_DTS_ROOT_BINDINGS ${DTS_ROOT_BINDINGS} CACHE INTERNAL
     "DT bindings root directories"
+  )
+  set(CACHED_DTS_ROOT_SCHEMAS ${DTS_ROOT_SCHEMAS} CACHE INTERNAL
+    "dt-schema based bindings root directories"
   )
   set(dts_files ${dts_files} PARENT_SCOPE)
   set(DTS_SOURCE ${DTS_SOURCE} PARENT_SCOPE)
@@ -310,6 +323,13 @@ function(dts_edt_pickle)
     set(gen_edt_workspace_dir ${ZEPHYR_BASE}/..)
   endif()
 
+  if(CACHED_DTS_ROOT_SCHEMAS)
+    list(APPEND EXTRA_GEN_EDT_ARGS --dtschema-dirs ${CACHED_DTS_ROOT_SCHEMAS})
+  endif()
+  if(DTS_NO_CLASSIC_BINDINGS)
+    list(APPEND EXTRA_GEN_EDT_ARGS --no-classic-bindings)
+  endif()
+
   string(REPLACE ";" " " EXTRA_DTC_FLAGS_RAW "${EXTRA_DTC_FLAGS}")
   set(cmd_gen_edt ${PYTHON_EXECUTABLE} ${GEN_EDT_SCRIPT}
     --dts ${DTS_POST_CPP}
@@ -359,10 +379,25 @@ function(dts_gen_driver_kconfig)
   # Run GEN_DRIVER_KCONFIG_SCRIPT.
   #
 
+  # In DTS_NO_CLASSIC_BINDINGS mode, DT_HAS_<compat>_ENABLED symbols
+  # are derived from dt-schema based bindings only: a driver may only
+  # be enabled when the binding flavor in use actually describes its
+  # nodes.
+  if(DTS_NO_CLASSIC_BINDINGS)
+    unset(gen_driver_kconfig_bindings_args)
+  else()
+    set(gen_driver_kconfig_bindings_args
+      --bindings-dirs ${CACHED_DTS_ROOT_BINDINGS})
+  endif()
+  if(CACHED_DTS_ROOT_SCHEMAS)
+    list(APPEND gen_driver_kconfig_bindings_args
+      --dtschema-dirs ${CACHED_DTS_ROOT_SCHEMAS})
+  endif()
+
   execute_process(
     COMMAND ${PYTHON_EXECUTABLE} ${GEN_DRIVER_KCONFIG_SCRIPT}
     --kconfig-out ${DTS_KCONFIG}
-    --bindings-dirs ${CACHED_DTS_ROOT_BINDINGS}
+    ${gen_driver_kconfig_bindings_args}
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     RESULT_VARIABLE ret
   )
