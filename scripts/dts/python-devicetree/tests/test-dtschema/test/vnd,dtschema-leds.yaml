@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: BSD-3-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/test/vnd,dtschema-leds.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Test LED group (patternProperties to child-binding translation)
+
+maintainers:
+  - python-devicetree tests
+
+properties:
+  compatible:
+    const: vnd,dtschema-leds
+
+patternProperties:
+  'led':
+    type: object
+    description: A single LED.
+    properties:
+      gpios:
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+        maxItems: 1
+      label:
+        $ref: /schemas/types.yaml#/definitions/string
+    required:
+      - gpios
+
+required:
+  - compatible
+
+additionalProperties: true

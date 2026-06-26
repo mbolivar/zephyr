@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: BSD-3-Clause
+
+description: classic counterpart of the test GPIO controller
+
+compatible: "vnd,dtschema-gpio"
+
+properties:
+  reg:
+    type: array
+  gpio-controller:
+    type: boolean
+  "#gpio-cells":
+    type: int
+
+gpio-cells:
+  - pin
+  - flags

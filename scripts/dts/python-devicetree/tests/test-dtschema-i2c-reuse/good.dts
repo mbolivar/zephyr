@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2026 Qualcomm Innovation Center, Inc.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Valid against the reused i2c-controller schema: the child sits at a
+ * legal 7-bit I2C address and the bus runs at a sane frequency.
+ */
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	i2c@40044000 {
+		compatible = "vnd,reuse-i2c";
+		reg = <0x40044000 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clock-frequency = <100000>;
+
+		sensor@50 {
+			reg = <0x50>;
+		};
+	};
+};

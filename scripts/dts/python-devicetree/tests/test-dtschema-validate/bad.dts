@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2026 Qualcomm Innovation Center, Inc.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Values violate vnd,dtschema-thermometer.yaml: poll-rate is above the
+ * maximum and resolution is not one of the allowed values. The classic
+ * bindings language and edtlib accept both without complaint; dt-schema
+ * value validation rejects them.
+ */
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	thermometer@100 {
+		compatible = "vnd,dtschema-thermometer";
+		reg = <0x100 0x10>;
+		resolution = <10>;
+		poll-rate = <5000>;
+	};
+};

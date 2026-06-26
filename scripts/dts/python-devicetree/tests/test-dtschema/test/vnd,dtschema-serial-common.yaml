@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: BSD-3-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/test/vnd,dtschema-serial-common.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Common test serial controller properties ($ref include target)
+
+maintainers:
+  - python-devicetree tests
+
+properties:
+  current-speed:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Initial baud rate setting.
+
+required:
+  - current-speed
+
+additionalProperties: true

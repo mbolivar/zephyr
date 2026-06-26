@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Classic counterpart of test-dtschema/test/vnd,dtschema-device.yaml.
+# When both are available, the dt-schema document must win; this
+# binding marks the difference with the 'from-classic-binding'
+# property, which the dt-schema document does not have.
+
+description: classic binding that loses to a dt-schema document
+
+compatible: "vnd,dtschema-device"
+
+properties:
+  reg:
+    type: array
+  interrupts:
+    type: array
+  an-int:
+    type: int
+  an-array:
+    type: array
+  bytes:
+    type: uint8-array
+  a-string:
+    type: string
+  strings:
+    type: string-array
+  a-phandle:
+    type: phandle
+  some-phandles:
+    type: phandles
+  det-gpios:
+    type: phandle-array
+  a-bool:
+    type: boolean
+  delay-us:
+    type: int
+  from-classic-binding:
+    type: boolean

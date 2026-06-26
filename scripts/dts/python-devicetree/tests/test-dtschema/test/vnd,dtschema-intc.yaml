@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: BSD-3-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/test/vnd,dtschema-intc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Test interrupt controller (cell names from a per-compatible supplement)
+
+maintainers:
+  - python-devicetree tests
+
+properties:
+  compatible:
+    const: vnd,dtschema-intc
+
+  reg:
+    maxItems: 1
+
+  interrupt-controller: true
+
+  "#interrupt-cells":
+    const: 2
+
+required:
+  - compatible
+  - reg
+  - interrupt-controller
+  - "#interrupt-cells"
+
+additionalProperties: true

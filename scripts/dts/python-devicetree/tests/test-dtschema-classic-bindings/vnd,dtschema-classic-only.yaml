@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: BSD-3-Clause
+
+description: classic binding with no dt-schema counterpart
+
+compatible: "vnd,dtschema-classic-only"
+
+properties:
+  classic-prop:
+    type: int

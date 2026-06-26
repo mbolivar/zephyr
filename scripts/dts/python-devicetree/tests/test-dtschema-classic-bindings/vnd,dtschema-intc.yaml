@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: BSD-3-Clause
+
+description: classic counterpart of the test interrupt controller
+
+compatible: "vnd,dtschema-intc"
+
+properties:
+  reg:
+    type: array
+  interrupt-controller:
+    type: boolean
+  "#interrupt-cells":
+    type: int
+
+interrupt-cells:
+  - irq
+  - prio

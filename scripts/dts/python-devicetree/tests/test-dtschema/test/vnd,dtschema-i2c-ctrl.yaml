@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: BSD-3-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/test/vnd,dtschema-i2c-ctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Test I2C controller (bus supplement)
+
+maintainers:
+  - python-devicetree tests
+
+properties:
+  compatible:
+    const: vnd,dtschema-i2c-ctrl
+
+  reg:
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: true

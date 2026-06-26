@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: BSD-3-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/test/vnd,dtschema-sensor-common.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Properties shared by all bus variants of the test sensor
+
+maintainers:
+  - python-devicetree tests
+
+properties:
+  sample-count:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: shared property, pulled into every bus variant via $ref
+
+additionalProperties: true

@@ -1,0 +1,20 @@
+/*
+ * Copyright (c) 2026 Qualcomm Innovation Center, Inc.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Values satisfy vnd,dtschema-thermometer.yaml.
+ */
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	thermometer@100 {
+		compatible = "vnd,dtschema-thermometer";
+		reg = <0x100 0x10>;
+		resolution = <12>;
+		poll-rate = <100>;
+	};
+};

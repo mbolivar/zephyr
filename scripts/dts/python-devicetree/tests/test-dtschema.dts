@@ -1,0 +1,104 @@
+/*
+ * Copyright (c) 2026 Qualcomm Innovation Center, Inc.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Devicetree used by test_dtschema_bindings.py, together with the
+ * dt-schema documents in test-dtschema/ and the classic bindings in
+ * test-dtschema-classic-bindings/.
+ */
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	intc: interrupt-controller@1000 {
+		compatible = "vnd,dtschema-intc";
+		reg = <0x1000 0x100>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpioc: gpio@2000 {
+		compatible = "vnd,dtschema-gpio";
+		reg = <0x2000 0x100>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	device@3000 {
+		compatible = "vnd,dtschema-device";
+		reg = <0x3000 0x10>;
+		interrupt-parent = <&intc>;
+		interrupts = <5 1>;
+		an-int = <7>;
+		an-array = <1 2 3>;
+		bytes = [01 02];
+		a-string = "alpha";
+		strings = "a", "b";
+		a-phandle = <&gpioc>;
+		some-phandles = <&gpioc &intc>;
+		det-gpios = <&gpioc 4 1>;
+		a-bool;
+		delay-us = <100>;
+	};
+
+	serial@4000 {
+		compatible = "vnd,dtschema-serial-ctrl";
+		reg = <0x4000 0x100>;
+		current-speed = <115200>;
+		fifo-depth = <16>;
+
+		serial-dev {
+			compatible = "vnd,dtschema-serial-dev";
+		};
+	};
+
+	leds {
+		compatible = "vnd,dtschema-leds";
+
+		led_0 {
+			gpios = <&gpioc 1 0>;
+			label = "L0";
+		};
+	};
+
+	/*
+	 * Multi-bus pattern: the same compatible (vnd,dtschema-sensor)
+	 * appears on two different buses and must resolve to the matching
+	 * per-bus document, selected by the parent controller's bus.
+	 */
+	i2c@5000 {
+		compatible = "vnd,dtschema-i2c-ctrl";
+		reg = <0x5000 0x100>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sensor@1 {
+			compatible = "vnd,dtschema-sensor";
+			reg = <1>;
+			sample-count = <100>;
+			i2c-extra;
+		};
+	};
+
+	spi@6000 {
+		compatible = "vnd,dtschema-spi-ctrl";
+		reg = <0x6000 0x100>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sensor@0 {
+			compatible = "vnd,dtschema-sensor";
+			reg = <0>;
+			sample-count = <200>;
+			spi-extra = <7>;
+		};
+	};
+
+	classic-device {
+		compatible = "vnd,dtschema-classic-only";
+		classic-prop = <3>;
+	};
+};

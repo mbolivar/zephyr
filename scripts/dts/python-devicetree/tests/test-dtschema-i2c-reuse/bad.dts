@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2026 Qualcomm Innovation Center, Inc.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Invalid against the reused i2c-controller schema: 0x99 is not a valid
+ * 7-bit I2C address and 9 MHz exceeds the maximum bus frequency. The
+ * classic bindings language and edtlib accept both; the reused upstream
+ * schema rejects them.
+ */
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	i2c@40044000 {
+		compatible = "vnd,reuse-i2c";
+		reg = <0x40044000 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clock-frequency = <9000000>;
+
+		sensor@99 {
+			reg = <0x99>;
+		};
+	};
+};

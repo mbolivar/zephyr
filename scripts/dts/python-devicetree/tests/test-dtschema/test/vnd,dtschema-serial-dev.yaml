@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: BSD-3-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/test/vnd,dtschema-serial-dev.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Test device on the vndserial bus (on-bus supplement)
+
+maintainers:
+  - python-devicetree tests
+
+properties:
+  compatible:
+    const: vnd,dtschema-serial-dev
+
+required:
+  - compatible
+
+additionalProperties: true
