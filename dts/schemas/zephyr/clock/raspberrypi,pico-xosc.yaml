@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/clock/raspberrypi,pico-xosc.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/clock/raspberrypi,pico-xosc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: The representation of Raspberry Pi Pico external oscillator
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-xosc
+  '#clock-cells':
+    description: Number of items to expect in a Clock specifier
+    const: 0
+  clock-frequency: true
+  startup-delay-multiplier:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Startup delay multiplier. The default value matches the Pico SDK used
+      as the basis for hal_rpi_pico (currently v2.1.1).
+    default: 6
+required:
+- compatible
+- '#clock-cells'
+- clock-frequency
+additionalProperties: true

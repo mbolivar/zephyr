@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/serial/arm,pl011.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/serial/arm,pl011.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: ARM PL011 UART
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+allOf:
+  # Reuse the dt-schema project's standard serial schema for the common
+  # serial-device conventions, instead of redeclaring them Zephyr-side.
+  # Resolved from the dtschema package; nothing is copied into the tree.
+  - $ref: http://devicetree.org/schemas/serial.yaml#
+properties:
+  compatible:
+    const: arm,pl011
+  current-speed:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Initial baud rate setting for UART
+  data-bits:
+    description: Sets the number of data bits.
+    enum:
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+  fifo-disable:
+    type: boolean
+    description: Disable the UART FIFO
+  hw-flow-control:
+    type: boolean
+    description: Set to enable RTS/CTS flow control at boot time
+  parity:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Configures the parity of the adapter. Enumeration id 0 for none, 1 for odd
+      and 2 for even parity, 3 for mark parity and 4 for space parity.
+      Default to none if not specified.
+    enum:
+    - none
+    - odd
+    - even
+    - mark
+    - space
+    default: none
+  reg: true
+  reset-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of each reset
+  resets:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Reset information
+  stop-bits:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Sets the number of stop bits.
+    enum:
+    - '0_5'
+    - '1'
+    - '1_5'
+    - '2'
+required:
+- compatible
+- reg
+additionalProperties: true

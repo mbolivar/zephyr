@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/ipm/zephyr,mbox-ipm.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/ipm/zephyr,mbox-ipm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Inter-Processor-Message to Mailbox adaptor driver
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: zephyr,mbox-ipm
+  mbox-names: true
+  mboxes: true
+required:
+- compatible
+- mbox-names
+- mboxes
+additionalProperties: true

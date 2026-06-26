@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/watchdog/raspberrypi,pico-watchdog.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/watchdog/raspberrypi,pico-watchdog.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico Watchdog
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-watchdog
+  clocks: true
+  reg: true
+required:
+- compatible
+- clocks
+- reg
+additionalProperties: true

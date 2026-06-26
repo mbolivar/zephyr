@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/gpio/raspberrypi,pico-gpio.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/gpio/raspberrypi,pico-gpio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico GPIO
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-gpio
+  gpio-map: true
+  gpio-map-mask:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+  gpio-map-pass-thru:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+required:
+- compatible
+- gpio-map
+additionalProperties: true

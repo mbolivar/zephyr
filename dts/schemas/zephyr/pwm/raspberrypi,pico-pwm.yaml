@@ -1,0 +1,117 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/pwm/raspberrypi,pico-pwm.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/pwm/raspberrypi,pico-pwm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico PWM
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-pwm
+  '#pwm-cells':
+    description: Number of items to expect in a pwm specifier
+    const: 3
+  channels:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of PWM channels supported by the controller.
+  divider-frac-0:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      The fractional part of the divider for pwm slice 0.
+      This number should be in the range 0 - 15.
+      When the "divider-int-0" is set to 0 or is not defined, this property will be
+      ignored.
+  divider-frac-1:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-0 for help
+  divider-frac-10:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-8 for help
+  divider-frac-11:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-8 for help
+  divider-frac-2:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-0 for help
+  divider-frac-3:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-0 for help
+  divider-frac-4:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-0 for help
+  divider-frac-5:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-0 for help
+  divider-frac-6:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-0 for help
+  divider-frac-7:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-0 for help
+  divider-frac-8:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      See divider-frac-0 for help, however this PWM slice is not available on
+      RP2040.
+  divider-frac-9:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-frac-8 for help
+  divider-int-0:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      The integral part of the divider for pwm slice 0.
+      If a value between 1 and 255 is set, it will be set to the register
+      as the integer part of the divider.
+      If the value is set to 0 or this property is not defined when setting
+      the number of cycles to PWM, a division ratio appropriate to that value is set.
+  divider-int-1:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-0 for help
+  divider-int-10:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-8 for help
+  divider-int-11:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-8 for help
+  divider-int-2:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-0 for help
+  divider-int-3:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-0 for help
+  divider-int-4:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-0 for help
+  divider-int-5:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-0 for help
+  divider-int-6:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-0 for help
+  divider-int-7:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-0 for help
+  divider-int-8:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      See divider-int-0 for help, however this PWM slice is not available on
+      RP2040.
+  divider-int-9:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: See divider-int-8 for help
+  interrupts: true
+  reg: true
+  reset-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of each reset
+  resets:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Reset information
+required:
+- compatible
+- '#pwm-cells'
+- interrupts
+- reg
+additionalProperties: true

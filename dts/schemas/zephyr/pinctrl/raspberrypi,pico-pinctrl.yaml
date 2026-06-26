@@ -1,0 +1,227 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/pinctrl/raspberrypi,pico-pinctrl.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/pinctrl/raspberrypi,pico-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico Pin Controller
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Singleton node responsible for controlling pin function selection and pin
+  properties, such as routing a UART0 Rx to pin 1 and enabling the pullup
+  resistor on that pin.
+
+  The node has the 'pinctrl' node label set in your SoC's devicetree,
+  so you can modify it like this:
+
+    &pinctrl {
+            /* your modifications go here */
+    };
+
+  All device pin configurations should be placed in child nodes of the
+  'pinctrl' node, as shown in this example:
+
+    /* You can put this in places like a board-pinctrl.dtsi file in
+     * your board directory, or a devicetree overlay in your application.
+     */
+
+    /* include pre-defined combinations for the SoC variant used by the board */
+    #include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
+
+    &pinctrl {
+      /* configuration for the usart0 "default" state */
+      uart0_default: uart0_default {
+        /* group 1 */
+        group1 {
+          /* configure P0 as UART0 TX */
+          pinmux = <UART0_TX_P0>;
+        };
+        /* group 2 */
+        group2 {
+          /* configure P1 as UART0 RX */
+          pinmux = <UART0_RX_P1>;
+          /* enable input on pin 1 */
+          input-enable;
+        };
+      };
+    };
+
+  The 'uart0_default' child node encodes the pin configurations for a
+  particular state of a device; in this case, the default (that is, active)
+  state.
+
+  As shown, pin configurations are organized in groups within each child node.
+  Each group can specify a list of pin function selections in the 'pinmux'
+  property.
+
+  A group can also specify shared pin properties common to all the specified
+  pins, such as the 'input-enable' property in group 2. Here is a list of
+  supported standard pin properties:
+
+  - bias-disable: Disable pull-up/down (default, not required).
+  - bias-pull-up: Enable pull-up resistor.
+  - bias-pull-down: Enable pull-down resistor.
+  - input-enable: Enable input from the pin.
+  - input-schmitt-enable: Enable input hysteresis.
+  - drive-strength: Set the drive strength of the pin, in milliamps. Possible
+    values are: 2, 4, 8, 12 (default: 4mA)
+  - slew-rate: If set to 0, slew rate is set to slow. If set to 1, it is set
+    to fast.
+
+  To link pin configurations with a device, use a pinctrl-N property for some
+  number N, like this example you could place in your board's DTS file:
+
+     #include "board-pinctrl.dtsi"
+
+     &uart0 {
+           pinctrl-0 = <&uart0_default>;
+           pinctrl-1 = <&uart0_sleep>;
+           pinctrl-names = "default", "sleep";
+     };
+properties:
+  compatible:
+    const: raspberrypi,pico-pinctrl
+patternProperties:
+  ^.*$:
+    properties: {}
+    patternProperties:
+      ^.*$:
+        properties:
+          bias-disable:
+            type: boolean
+            description: disable any pin bias
+          bias-pull-down:
+            type: boolean
+            description: enable pull-down resistor
+          bias-pull-up:
+            type: boolean
+            description: enable pull-up resistor
+          drive-strength:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: |-
+              The drive strength of a pin, in mA. The default value is 4mA, as this
+              is the power on reset value.
+            enum:
+            - 2
+            - 4
+            - 8
+            - 12
+            default: 4
+          input-enable:
+            type: boolean
+            description: enable input on pin (e.g. enable an input buffer, no effect
+              on output)
+          input-schmitt-enable:
+            type: boolean
+            description: enable schmitt-trigger mode
+          pinmux:
+            $ref: /schemas/types.yaml#/definitions/uint32-array
+            description: |-
+              An array of pins sharing the same group properties. Each
+              element of the array is an integer constructed from the
+              pin number and the alternative function of the pin.
+          raspberrypi,in-override:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: |-
+              Override input for a pin.
+
+              - 0 (RP2_GPIO_OVERRIDE_NORMAL) - drive input from selected
+                  pin.
+              - 1 (RP2_GPIO_OVERRIDE_INVERT) - drive input from inverse of
+                  selected pin.
+              - 2 (RP2_GPIO_OVERRIDE_LOW) - drive input low.
+              - 3 (RP2_GPIO_OVERRIDE_HIGH) - drive input high.
+
+              The default value is 0, as this is the power on reset value.
+            enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            default: 0
+          raspberrypi,irq-override:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: |-
+              Override interrupt signal for a pin.
+
+              - 0 (RP2_GPIO_OVERRIDE_NORMAL) - drive interrupt signal to selected
+                  peripheral.
+              - 1 (RP2_GPIO_OVERRIDE_INVERT) - drive interrupt signal from inverse to
+                  selected peripheral.
+              - 2 (RP2_GPIO_OVERRIDE_LOW) - drive interrupt signal low.
+              - 3 (RP2_GPIO_OVERRIDE_HIGH) - drive interrupt signal high.
+
+              The default value is 0, as this is the power on reset value.
+            enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            default: 0
+          raspberrypi,oe-override:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: |-
+              Override output-enable for a pin.
+
+              - 0 (RP2_GPIO_OVERRIDE_NORMAL) - drive output enable from selected
+                  peripheral signal.
+              - 1 (RP2_GPIO_OVERRIDE_INVERT) - drive output enable from inverse of
+                  selected peripheral signal.
+              - 2 (RP2_GPIO_OVERRIDE_LOW) - disable output.
+              - 3 (RP2_GPIO_OVERRIDE_HIGH) - enable output.
+
+              The default value is 0, as this is the power on reset value.
+            enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            default: 0
+          raspberrypi,out-override:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: |-
+              Override output for a pin.
+
+              - 0 (RP2_GPIO_OVERRIDE_NORMAL) - drive output from selected
+                  peripheral signal.
+              - 1 (RP2_GPIO_OVERRIDE_INVERT) - drive output from inverse of
+                  selected peripheral signal.
+              - 2 (RP2_GPIO_OVERRIDE_LOW) - drive output low.
+              - 3 (RP2_GPIO_OVERRIDE_HIGH) - drive output high.
+
+              The default value is 0, as this is the power on reset value.
+            enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            default: 0
+          slew-rate:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: |-
+              The slew rate of a pin. 0 corresponds to slow, and 1 corresponds to fast.
+              The default value is 0 (slow), as this is the power on reset value.
+            enum:
+            - 0
+            - 1
+            default: 0
+        required:
+        - pinmux
+        description: |-
+          Generic pin configuration schema
+
+          Many data items that are represented in a pin configuration node are
+          common and generic. Pin control bindings should use the properties
+          defined below where they are applicable; not all of these properties are
+          relevant or useful for all hardware or binding structures. Each
+          individual binding document should state which of these generic
+          properties, if any, are used, and the structure of the DT nodes that
+          contain these properties.
+
+          This is based on Linux, documentation:
+            https://www.kernel.org/doc/Documentation/devicetree/bindings/pinctrl/pincfg-node.yaml
+    description: Definitions for a pinctrl state.
+required:
+- compatible
+additionalProperties: true

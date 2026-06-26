@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/clock/raspberrypi,pico-rosc.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/clock/raspberrypi,pico-rosc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: The representation of Raspberry Pi Pico ring oscillator.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-rosc
+  '#clock-cells':
+    description: Number of items to expect in a Clock specifier
+    const: 0
+  clock-div:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: fixed clock divider
+  clock-frequency: true
+  clock-mult:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: fixed clock multiplier
+  phase:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      The phase-shift value.
+      The valid range is 0 to 3
+  phase-flip:
+    type: boolean
+    description: Flipping phase-shifter output.
+  range:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Specify the number of ring oscillator stages to use.
+        - LOW: 8 (default)
+        - MEDIUM: 6
+        - HIGH: 4
+        - TOOHIGH: 2
+  stage-drive-strength:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: |-
+      Specifies the drive strength of the eight stages of the ring oscillator.
+      The valid range of each value is between 0 and 7.
+required:
+- compatible
+- '#clock-cells'
+- clock-frequency
+- range
+- stage-drive-strength
+additionalProperties: true

@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/clock/raspberrypi,pico-clock-controller.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/clock/raspberrypi,pico-clock-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico clock controller node
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-clock-controller
+  '#clock-cells':
+    description: Number of items to expect in a Clock specifier
+    const: 1
+  reg: true
+required:
+- compatible
+- '#clock-cells'
+- reg
+additionalProperties: true

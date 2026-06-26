@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/regulator/raspberrypi,core-supply-regulator.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/regulator/raspberrypi,core-supply-regulator.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico core supply regurator
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,core-supply-regulator
+  raspberrypi,brown-out-detection:
+    type: boolean
+    description: Enable brown-out detection
+  raspberrypi,brown-out-threshold:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Reset if the core voltage drops below this threshold for a particular time
+      (determined by the 'brown-out detection assertion delay').
+      On RP2040, the threshold must be less than 1.161V.
+    enum:
+    - 473000
+    - 516000
+    - 559000
+    - 602000
+    - 645000
+    - 688000
+    - 731000
+    - 774000
+    - 817000
+    - 860000
+    - 903000
+    - 946000
+    - 989000
+    - 1032000
+    - 1075000
+    - 1118000
+    - 1161000
+    - 1204000
+    default: 860000
+  regulator-allowed-modes:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: |-
+      List of operating modes that software is allowed to configure for the
+      regulator at run-time. Elements may be specified in any order. The set of
+      possible operating modes depends on the capabilities of every hardware so
+      each device binding document explains which values the regulator supports.
+  regulator-always-on:
+    type: boolean
+    description: boolean, regulator should never be disabled
+  regulator-boot-on:
+    type: boolean
+    description: |-
+      bootloader/firmware enabled regulator.
+      It's expected that this regulator was left on by the bootloader.
+      If the bootloader didn't leave it on then OS should turn it on
+      at boot but shouldn't prevent it from being turned off later.
+      This property is intended to only be used for regulators where
+      software cannot read the state of the regulator.
+  regulator-initial-mode:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Initial operating mode. The set of possible operating modes depends on the
+      capabilities of every hardware so each device binding documentation
+      explains which values the regulator supports.
+  regulator-max-microvolt:
+    description: largest voltage consumers may set
+  regulator-min-microvolt:
+    description: smallest voltage consumers may set
+required:
+- compatible
+additionalProperties: true

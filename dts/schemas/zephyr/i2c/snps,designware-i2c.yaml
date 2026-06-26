@@ -1,0 +1,117 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/i2c/snps,designware-i2c.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/i2c/snps,designware-i2c.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Synopsys DesignWare I2C
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+allOf:
+  # Reuse the dt-schema project's standard I2C controller schema: it
+  # constrains clock-frequency to a sane range and every child's reg
+  # (its I2C address) to a valid 7-/10-bit address -- validation the
+  # classic bindings language cannot express. Resolved from the dtschema
+  # package; nothing is copied into the Zephyr tree.
+  - $ref: http://devicetree.org/schemas/i2c/i2c-controller.yaml#
+properties:
+  compatible:
+    const: snps,designware-i2c
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 0
+  class-rev:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Optional class/revision register filter
+  class-rev-mask:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Class/revision register mask
+  cq-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Size of the completion queue for blocking requests
+    default: 4
+  device-id:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Device ID of the device
+  fs-spike-len:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Spike suppression length for Standard-mode (Sm), Fast-mode (Fm),
+      and Fast-mode Plus (Fm+) I2C transfers, expressed in units of the
+      I2C controller input clock (ic_clk) cycles.
+
+      The I2C-bus specification (UM10204) defines a maximum spike width
+      (tSP) of 50 ns for Sm, Fm, and Fm+ modes. This property programs the
+      controller to suppress spikes up to the corresponding number of
+      ic_clk cycles.
+
+      For example, with an input clock frequency of 100 MHz, a value of
+      5 corresponds to a spike width of 50 ns.
+  hcnt-offset:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: A fixed offset to apply to the SCL hcnt setting.
+  hs-spike-len:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Spike suppression length for High-speed (Hs) I2C transfers,
+      expressed in units of the I2C controller input clock (ic_clk) cycles.
+
+      The I2C-bus specification (UM10204) defines a maximum spike width
+      (tSP) of 10 ns for Hs mode. This property programs the controller to
+      suppress spikes up to the corresponding number of ic_clk cycles.
+
+      For example, with an input clock frequency of 100 MHz, a value of
+      1 corresponds to a spike width of 10 ns.
+  i2c-sda-hold-time-ns:
+    description: |-
+      This property specifies the amount of time the SDA line is held after
+      a transmit operation. The value is in nanoseconds. The value is
+      converted to clock ticks at buildtime using
+      CONFIG_I2C_DW_CLOCK_SPEED.
+
+      This property takes precedence over sda-hold-tx.
+      If sda-hold-time-ns is non-zero, sda-hold-tx is ignored.
+  interrupts: true
+  lcnt-offset:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: A fixed offset to apply to the SCL lcnt setting.
+  reset-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of each reset
+  resets:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Reset information
+  scl-timeout-value:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Describe the SCL stuck at low timeout value, unit in ms
+    default: 30
+  sda-hold-rx:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      This property specifies the amount of time that the SDA line is held
+      after a receive operation. The value is in units of I2C clock cycles.
+      Valid range is 0 to 0xff.
+  sda-hold-tx:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      This property specifies the amount of time that the SDA line is held
+      after a transmit operation. The value is in units of I2C clock cycles.
+      Valid range is 0 to 0xffff.
+  sda-timeout-value:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Describe the SDA stuck at low timeout value, unit in ms
+    default: 30
+  sq-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Size of the submission queue for blocking requests
+    default: 4
+  vendor-id:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Vendor ID of the device
+required:
+- compatible
+- '#address-cells'
+- '#size-cells'
+- interrupts
+additionalProperties: true

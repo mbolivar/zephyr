@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/reset/raspberrypi,pico-reset.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/reset/raspberrypi,pico-reset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico Reset Controller
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-reset
+  '#reset-cells':
+    description: |-
+      Number of cells in reset property. There must be a cell
+      named "id" to use the reset_dt_spec macros.
+    const: 1
+  reg: true
+required:
+- compatible
+- '#reset-cells'
+- reg
+additionalProperties: true

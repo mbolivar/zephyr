@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/rtc/raspberrypi,pico-rtc.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/rtc/raspberrypi,pico-rtc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico RTC
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-rtc
+  alarms-count:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Number of alarms supported by RTC device. The number of
+      alarms defaults to 0, which indicates that the RTC has
+      no alarms.
+    default: 0
+  reg: true
+  reset-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of each reset
+  resets:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Reset information
+required:
+- compatible
+- reg
+additionalProperties: true

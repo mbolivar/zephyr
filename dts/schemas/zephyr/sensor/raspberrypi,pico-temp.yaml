@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/sensor/raspberrypi,pico-temp.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/sensor/raspberrypi,pico-temp.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico family temperature sensor node
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-temp
+  friendly-name:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: |-
+      Human readable string describing the sensor. It can be used to
+      distinguish multiple instances of the same model (e.g., lid accelerometer
+      vs. base accelerometer in a laptop) to a host operating system.
+
+      This property is defined in the Generic Sensor Property Usages of the HID
+      Usage Tables specification
+      (https://usb.org/sites/default/files/hut1_3_0.pdf, section 22.5).
+  io-channels: true
+  vbe:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Vbe voltage in microvolts at 27 degrees C. Vbe = 0.706V typically.
+      The temperature sensor measures the Vbe voltage of a biased bipolar diode.
+      The temperature calculates from the Vbe voltage measured by the sensor
+      using the following equation typical case.
+
+        T = 27 - (ADC_Voltage - 0.706)/0.001721
+
+      See also the vbe-slope section.
+    default: 706000
+  vbe-slope:
+    $ref: /schemas/types.yaml#/definitions/int32
+    description: |-
+      The slope of Vbe voltage in microvolts per degree C.
+      Typically, a slope of -1.721mV per degree.
+
+      See also the vbe section.
+    default: -1721
+required:
+- compatible
+- io-channels
+additionalProperties: true

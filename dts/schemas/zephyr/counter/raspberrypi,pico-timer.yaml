@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/counter/raspberrypi,pico-timer.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/counter/raspberrypi,pico-timer.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico timer
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+properties:
+  compatible:
+    const: raspberrypi,pico-timer
+  reset-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of each reset
+  resets:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Reset information
+required:
+- compatible
+additionalProperties: true

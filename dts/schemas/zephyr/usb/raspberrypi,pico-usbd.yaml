@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/usb/raspberrypi,pico-usbd.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/usb/raspberrypi,pico-usbd.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico USB Device Controller.
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Raspberry Pi Pico USB Device Controller.
+
+  Example of enabling the controller with vbus detection:
+
+    &pinctrl {
+      usb_default: usb_default {
+        group1 {
+          pinmux = <USB_VBUS_DET_P1>;
+          input-enable;
+        };
+      };
+    };
+
+    zephyr_udc0: &usbd {
+      status = "okay";
+      pinctrl-0 = <&usb_default>;
+      pinctrl-names = "default";
+    };
+properties:
+  compatible:
+    const: raspberrypi,pico-usbd
+  interrupts: true
+  maximum-speed:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Configures USB controllers to work up to a specific speed. Valid
+      arguments are "super-speed", "high-speed", "full-speed" and "low-speed". If
+      this is not passed via DT, USB controllers should use their maximum hardware
+      capability.
+    enum:
+    - low-speed
+    - full-speed
+    - high-speed
+    - super-speed
+  num-bidir-endpoints:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Number of bi-directional endpoints supported by hardware
+      (including EP0)
+  num-in-endpoints:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Number of IN endpoints supported by hardware
+      (including EP0 IN)
+  num-out-endpoints:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Number of OUT endpoints supported by hardware
+      (including EP0 OUT)
+  reg: true
+  reset-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of each reset
+  resets:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Reset information
+  vbus-gpios:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Control VBUS via GPIO pin.
+required:
+- compatible
+- interrupts
+- num-bidir-endpoints
+- reg
+additionalProperties: true

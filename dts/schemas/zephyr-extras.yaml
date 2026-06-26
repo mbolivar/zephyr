@@ -3,6 +3,14 @@
 # cell names and bus typing, which dt-schema cannot
 # express (yet). See dtschema_bindings.py.
 compatibles:
+  arm,pl011:
+    bus: uart
+  arm,pl022:
+    bus: spi
+  arm,v6m-nvic:
+    interrupt-cells:
+    - irq
+    - priority
   arm,v7m-nvic:
     interrupt-cells:
     - irq
@@ -43,6 +51,40 @@ compatibles:
     bus: usb
   nordic,qspi-nor:
     on-bus: qspi
+  raspberrypi,pico-adc:
+    io-channel-cells:
+    - input
+  raspberrypi,pico-clock-controller:
+    clock-cells:
+    - clk-id
+  raspberrypi,pico-dma:
+    dma-cells:
+    - channel
+    - slot
+    - channel-config
+    bus: dma
+  raspberrypi,pico-gpio-port:
+    gpio-cells:
+    - pin
+    - flags
+  raspberrypi,pico-i2c:
+    bus: i2c
+  raspberrypi,pico-pwm:
+    pwm-cells:
+    - channel
+    - period
+    - flags
+  raspberrypi,pico-reset:
+    reset-cells:
+    - id
+  raspberrypi,pico-spi:
+    bus: spi
+  raspberrypi,pico-uart:
+    bus: uart
+  raspberrypi,pico-usbd:
+    bus: usb
+  snps,designware-i2c:
+    bus: i2c
   ti,stellaris-gpio:
     gpio-cells:
     - pin

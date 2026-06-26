@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: Apache-2.0
+# Converted from dts/bindings/dma/raspberrypi,pico-dma.yaml by migrate_binding.py.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/zephyr/dma/raspberrypi,pico-dma.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Raspberry Pi Pico DMA
+maintainers:
+- Zephyr Devicetree subsystem <devel@lists.zephyrproject.org>
+description: |-
+  Raspberry Pi Pico DMA
+
+  channel: Select channel for data transmitting
+
+  slot: Select peripheral data request
+    Use the definitions defined in `zephyr/dt-bindings/dma/rpi-pico-dma-rp2040.h`,
+    or `zephyr/dt-bindings/dma/rpi-pico-dma-rp2350.h`
+
+  channel-config: A 32bit mask specifying the DMA channel configuration
+    - bit 3: Enable Quiet IRQ
+    - bit 1: Enable Byte Swap
+    - bit 0: Enable High Priority
+properties:
+  compatible:
+    const: raspberrypi,pico-dma
+  '#dma-cells':
+    description: Number of items to expect in a DMA specifier
+    const: 3
+  dma-buf-addr-alignment:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Memory address alignment requirement for DMA buffers used by the
+      controller.
+  dma-buf-size-alignment:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Memory size alignment requirement for DMA buffers used by the controller.
+  dma-channel-mask:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |-
+      Bitmask of available DMA channels in ascending order that are
+      not reserved by firmware and are available to the
+      kernel. i.e. first channel corresponds to LSB.
+  dma-channels:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of DMA channels supported by the controller
+  dma-copy-alignment:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Minimal chunk of data possible to be copied by the controller.
+  dma-requests:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of DMA request signals supported by the controller.
+  interrupts: true
+  irq0-channels:
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    description: Channels list that uses the irq0
+    default:
+    - 0
+    - 2
+    - 4
+    - 6
+    - 8
+    - 10
+  reg: true
+  reset-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of each reset
+  resets:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Reset information
+required:
+- compatible
+- '#dma-cells'
+- dma-channels
+- interrupts
+- reg
+additionalProperties: true
