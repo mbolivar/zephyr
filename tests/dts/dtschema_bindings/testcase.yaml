@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Strict-mode build gate for the dt-schema bindings RFC: build with the
+# classic bindings language disabled, so the boards' devicetrees must be
+# fully described by dt-schema documents. Requires the 'dtschema' Python
+# package; run with e.g. 'west twister -T tests/dts/dtschema_bindings'
+# after installing it (pip install dtschema).
+common:
+  tags: devicetree dtschema
+  build_only: true
+  extra_args:
+    - DTS_NO_CLASSIC_BINDINGS=ON
+  platform_allow:
+    - qemu_cortex_m3
+    - native_sim
+    - nrf52840dk/nrf52840
+    - rpi_pico
+  integration_platforms:
+    - qemu_cortex_m3
+tests:
+  dts.dtschema_bindings.strict:
+    # The dt-schema documents alone produce a complete, building image.

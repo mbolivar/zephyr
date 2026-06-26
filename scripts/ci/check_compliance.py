@@ -579,6 +579,95 @@ class DevicetreeBindingsCheck(ComplianceTest):
                 )
 
 
+class DevicetreeSchemaCheck(ComplianceTest):
+    """
+    Drift gate for the dt-schema based bindings RFC: when a compatible
+    is described by both a classic binding (dts/bindings/) and a
+    dt-schema document (dts/schemas/), the dt-schema document must remain
+    a faithful superset of the classic binding -- it may add properties,
+    validation constraints and child bindings, but must never drop or
+    contradict anything the classic binding specified. Otherwise a build
+    with -DDTS_NO_CLASSIC_BINDINGS=ON would regress relative to a normal
+    build. This runs scripts/dts/check_schema_parity.py for the
+    compatibles whose binding or schema changed.
+    """
+
+    name = "DevicetreeSchema"
+    doc = zephyr_doc_detail_builder("/build/dts/dt-schema-bindings.html")
+    path_hint = "<zephyr-base>"
+
+    def run(self):
+        try:
+            import dtschema  # noqa: F401
+        except ImportError:
+            self.skip("dtschema is not installed (dt-schema bindings are an "
+                      "optional, experimental feature)")
+
+        changed = [f for f in get_files(filter='d')
+                   if 'dts/bindings/' in f or 'dts/schemas/' in f]
+        if not changed:
+            self.skip("no classic-binding or dt-schema changes")
+
+        compatibles = set()
+        includes_changed = False
+        for path in changed:
+            file_compats = list(self._compatibles_in(GIT_TOP / path))
+            if file_compats:
+                compatibles.update(file_compats)
+            elif path.endswith(('.yaml', '.yml')):
+                # A common include / base file with no compatible of its
+                # own can affect many bindings; widen to the whole tree.
+                includes_changed = True
+
+        cmd = [sys.executable,
+               os.path.join(ZEPHYR_BASE, 'scripts', 'dts',
+                            'check_schema_parity.py')]
+        if not includes_changed:
+            if not compatibles:
+                self.skip("no affected compatibles")
+            cmd += sorted(compatibles)
+
+        result = subprocess.run(cmd, capture_output=True, text=True,
+                                cwd=ZEPHYR_BASE)
+        if result.returncode != 0:
+            self.failure(
+                "A dt-schema document drops or contradicts something its "
+                "classic binding specifies (it is no longer a faithful "
+                "superset), so a -DDTS_NO_CLASSIC_BINDINGS=ON build would "
+                "regress relative to a normal one. Re-run "
+                "scripts/dts/check_schema_parity.py and reconcile:\n\n"
+                + result.stdout + result.stderr)
+
+    @staticmethod
+    def _compatibles_in(path):
+        # Yields the compatible(s) a classic binding or dt-schema
+        # document declares, or nothing for include/common files.
+        try:
+            with open(path, encoding='utf-8') as f:
+                raw = yaml.load(f, Loader=SafeLoader)
+        except (OSError, yaml.YAMLError):
+            return
+        if not isinstance(raw, dict):
+            return
+        # Classic binding: top-level 'compatible:'.
+        if isinstance(raw.get('compatible'), str):
+            yield raw['compatible']
+        # dt-schema document: const/enum on properties.compatible.
+        props = raw.get('properties')
+        if isinstance(props, dict):
+            sub = props.get('compatible')
+            if isinstance(sub, dict):
+                if isinstance(sub.get('const'), str):
+                    yield sub['const']
+                for value in sub.get('enum') or []:
+                    if isinstance(value, str):
+                        yield value
+                for item in sub.get('items') or []:
+                    if isinstance(item, dict) and isinstance(
+                            item.get('const'), str):
+                        yield item['const']
+
+
 class DevicetreeLintingCheck(ComplianceTest):
     """
     Checks if we are introducing syntax or formatting issues to devicetree files.
